@@ -1,0 +1,20 @@
+{
+  "name": "option22",
+  "version": "0.0.0",
+  "main": "lib/app.js",
+  "scripts": {
+    "start": "node .lib/app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:gotnoskillz412/option22.git"
+  },
+  "author": "Spencer Hockeborn",
+  "license": "MIT"
+  "dependencies": {
+
+  },
+  "devDependencies": {
+
+  }
+}
