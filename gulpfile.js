@@ -1,12 +1,11 @@
 'use strict';
 
 const gulp = require('gulp');
-const babel = require('gulp-babel');
-const concat = require('gulp-concat');
 const eslint = require('gulp-eslint');
-const uglify = require('gulp-uglify');
-const rename = require('gulp-rename');
 const del = require('del');
+const gulpWebpack = require('gulp-webpack');
+const webpack = require('webpack');
+const nodeExternals = require('webpack-node-externals');
 const spawn = require('child_process').spawn;
 
 gulp.task('clean', () => {
@@ -23,25 +22,45 @@ gulp.task('lint', ['clean'], () => {
 
 // Concatinate and uglify javascript
 gulp.task('js', ['clean', 'lint'], () => {
-	return gulp.src('lib/**/*.js')
-		.pipe(babel({
-			presets: ['es2015']
+	return gulp.src('src/**/*.js')
+		.pipe(gulpWebpack({
+			target: 'node',
+			externals: [nodeExternals()],
+			module: {
+				loaders: [{
+					loader: 'babel-loader',
+					test: /\.js$/,
+					query: {
+						presets: ['es2015']
+					}
+				}]
+			},
+			output: {
+				filename: 'main.js'
+			},
+			plugins: [new webpack.optimize.UglifyJsPlugin({
+				compress: {
+					warnings: false
+				},
+				output: {
+					comments: false,
+					semicolons: true
+				}
+			})]
 		}))
-		.pipe(concat('main.js'))
-		.pipe(gulp.dest('dist'))
-		.pipe(rename('main.min.js'))
-		.pipe(uglify())
-		.pipe(gulp.dest('dist/js'));
+		.pipe(gulp.dest('dist/js'))
 });
+
+// web pack
 
 // Serve up the files
 gulp.task('start', ['clean', 'lint', 'js'], () => {
-	return spawn('node', ['lib/app.js'], { stdio: 'inherit' });
+	return spawn('node', ['dist/js/main.js'], { stdio: 'inherit' });
 });
 
 // Watch Files For Changes
 gulp.task('watch', ['clean', 'lint', 'js', 'start'], function() {
-	gulp.watch('lib/*/**.js', ['lint', 'js']);
+	gulp.watch('src/*/**.js', ['lint', 'js', 'start']);
 });
 
 gulp.task('build', ['clean', 'lint', 'js']);

@@ -6,7 +6,7 @@ const cookieParser = require('cookie-parser');
 const logger = require('winston');
 
 const routes = require('./routes/routes');
-// const security = require('./services/security');
+const security = require('./services/security');
 
 const PORT = 3000;
 const app = express();
@@ -14,7 +14,7 @@ const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(cookieParser());
-// app.use(security());
+app.use(security());
 
 app.use('/', routes.index);
 
