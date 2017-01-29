@@ -1,27 +1,26 @@
 'use strict';
 
-const express = require('express');
-const bodyParser = require('body-parser');
-const cookieParser = require('cookie-parser');
-const logger = require('winston');
+var express = require('express');
+var bodyParser = require('body-parser');
+var cookieParser = require('cookie-parser');
+var logger = require('winston');
 
-const routes = require('./routes/routes');
+var routes = require('./routes/routes');
 // const security = require('./services/security');
 
-const PORT = 3000;
-const app = express();
+var PORT = 3000;
+var app = express();
 
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended: false}));
+app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 // app.use(security());
 
 app.use('/', routes.index);
 
-
 /// catch 404 and forwarding to error handler
 app.use(function (req, res, next) {
-	const err = new Error('Not Found');
+	var err = new Error('Not Found');
 	err.status = 404;
 	next(err);
 });
@@ -31,7 +30,7 @@ app.use(function (req, res, next) {
 // development error handler
 // will print stacktrace
 if (app.get('env') === 'development') {
-	app.use((err, req, res) => {
+	app.use(function (err, req, res) {
 		res.status(err.status || 500);
 		res.render('error', {
 			message: err.message,
@@ -50,6 +49,21 @@ app.use(function (err, req, res) {
 	});
 });
 
-app.listen(PORT, () => {
-	logger.info(`App listening on port ${PORT}...`);
+app.listen(PORT, function () {
+	logger.info('App listening on port ' + PORT + '...');
 });
+'use strict';
+
+var express = require('express');
+var router = express.Router();
+
+router.get('/', function (req, res) {
+	res.status(200).send('ok');
+});
+
+exports = module.exports = router;
+'use strict';
+
+exports = module.exports = {
+	index: require('./index')
+};

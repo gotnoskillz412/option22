@@ -1,0 +1,38 @@
+{
+	"env": {
+		"node": true,
+		"es6": true
+	},
+	"rules": {
+		"comma-dangle": ["error", "never"],         // disallow trailing commas in object literals
+		"no-console": "error",              // disallow use of console (off by default in the node environment)
+		"no-debugger": "error",             // disallow use of debugger
+		"no-dupe-keys": "error",            // disallow duplicate keys when creating object literals
+		"no-empty": "error",                // disallow empty statements
+		"no-extra-semi": "error",           // disallow unnecessary semicolons
+		"no-invalid-regexp": "error",       // disallow invalid regular expression strings in the RegExp constructor
+		"no-irregular-whitespace": "error", // disallow irregular whitespace outside of strings and comments
+		"no-unreachable": "error",          // disallow unreachable statements after a return, throw, continue, or break statement
+		"valid-typeof": "error",            // Ensure that the results of typeof are compared against a valid string
+
+
+		////////// Best Practices //////////
+		"eqeqeq": ["error", "always", {"null": "ignore"}],                // require the use of === and !==
+		"no-else-return": "error",        // disallow else after a return in an if (off by default)
+		"no-floating-decimal": "error",   // disallow the use of leading or trailing decimal points in numeric literals (off by default)
+		"no-lone-blocks": "error",        // disallow unnecessary nested blocks
+		"no-loop-func": "error",          // disallow creation of functions within loops
+		"no-multi-spaces": "error",       // disallow use of multiple spaces
+
+		///////// Variables ////////////
+		"no-undefined": "error",                // disallow use of undefined variable (off by default)
+		"no-unused-vars": "error",              // disallow declaration of variables that are not used in the code
+
+		///////// Node.js /////////////
+
+		"handle-callback-err": "error",   // enforces error handling in callbacks (off by default) (on by default in the node environment)
+		"no-var": "error",
+		"quotes": ["error", "single"],
+		"prefer-const": "error"
+	}
+}
