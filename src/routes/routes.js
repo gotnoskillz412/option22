@@ -1,5 +1,6 @@
 'use strict';
 
 exports = module.exports = {
-	index: require('./index')
+	index: require('./index'),
+	auth: require('./auth')
 };

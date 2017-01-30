@@ -5,7 +5,7 @@
 	},
 	"rules": {
 		"comma-dangle": ["error", "never"],         // disallow trailing commas in object literals
-		"no-console": "error",              // disallow use of console (off by default in the node environment)
+//		"no-console": "error",              // disallow use of console (off by default in the node environment)
 		"no-debugger": "error",             // disallow use of debugger
 		"no-dupe-keys": "error",            // disallow duplicate keys when creating object literals
 		"no-empty": "error",                // disallow empty statements

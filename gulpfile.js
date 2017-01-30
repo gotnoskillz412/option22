@@ -54,13 +54,17 @@ gulp.task('js', ['clean', 'lint'], () => {
 // web pack
 
 // Serve up the files
-gulp.task('start', ['clean', 'lint', 'js'], () => {
-	return spawn('node', ['dist/js/main.js'], { stdio: 'inherit' });
+gulp.task('start', ['clean', 'js'], () => {
+	if (process.env.NODE_ENV && process.env.NODE_ENV.toLowerCase() === 'production'){
+		return spawn('node', ['dist/js/main.js'], { stdio: 'inherit' });
+	}
+	return spawn('node', ['src/app.js'], { stdio: 'inherit' })
+
 });
 
 // Watch Files For Changes
-gulp.task('watch', ['clean', 'lint', 'js', 'start'], function() {
-	gulp.watch('src/*/**.js', ['lint', 'js', 'start']);
+gulp.task('watch', ['clean', 'lint', 'js'], function() {
+	gulp.watch('src/*/**.js', ['lint', 'js']);
 });
 
 gulp.task('build', ['clean', 'lint', 'js']);

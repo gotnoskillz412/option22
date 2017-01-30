@@ -4,9 +4,11 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const logger = require('winston');
+const expressSession = require('express-session');
+const mongoose = require('mongoose');
 
 const routes = require('./routes/routes');
-const security = require('./services/security');
+const Account = require('./models/account');
 
 const PORT = 3000;
 const app = express();
@@ -14,11 +16,18 @@ const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(cookieParser());
-app.use(security());
+app.use(expressSession({
+	secret: process.env.MY_SECRET,
+	resave: false,
+	saveUninitialized: false
+}));
+
 
 app.use('/', routes.index);
+app.use('/auth', routes.auth);
 
-
+mongoose.Promise = global.Promise;
+mongoose.connect('mongodb://localhost/option22');
 /// catch 404 and forwarding to error handler
 app.use(function (req, res, next) {
 	const err = new Error('Not Found');
