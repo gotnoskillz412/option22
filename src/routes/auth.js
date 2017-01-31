@@ -1,23 +1,43 @@
 'use strict';
 
 const express = require('express');
-const passport = require('passport');
-const Account = require('../models/account');
 const router = express.Router();
 const logger = require('winston');
+const jwt = require('jsonwebtoken');
 
+const account = require('../models/account');
 
-router.post('/register', function (req, res) {
+// TODO need salt and hash methods for passwords
 
+router.post('/register', function () {
+
+	// first check for if a user exists already
+
+	// later, verify email address
 });
 
 router.post('/login', (req, res) => {
-	logger.info('login succes', req.session, req.user);
+	// Check credentials and then provide token
+	var token;
+	account.findOne({
+		username: req.body.username
+	}, (err, user) => {
+		if (err) {
+			//redirect with no user found error
+		} else {
+			// verify the password, then set password
+		}
+	});
+
+
+	logger.info('login success');
+	res.set('Access-Token', token);
 	res.redirect('/');
 });
 
 router.get('/logout', function (req, res) {
-	req.logout();
+	// blacklist token somehow until it expires
+
 	res.redirect('/');
 });
 

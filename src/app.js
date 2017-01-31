@@ -7,11 +7,12 @@ const logger = require('winston');
 const expressSession = require('express-session');
 const mongoose = require('mongoose');
 
+const security = require('./services/security');
 const routes = require('./routes/routes');
-const Account = require('./models/account');
 
 const PORT = 3000;
 const app = express();
+const mongoUri = process.env.MONGO_URI || 'mongodb://localhost/option22';
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
@@ -22,12 +23,13 @@ app.use(expressSession({
 	saveUninitialized: false
 }));
 
+app.use(security());
 
 app.use('/', routes.index);
 app.use('/auth', routes.auth);
 
 mongoose.Promise = global.Promise;
-mongoose.connect('mongodb://localhost/option22');
+mongoose.connect(mongoUri);
 /// catch 404 and forwarding to error handler
 app.use(function (req, res, next) {
 	const err = new Error('Not Found');

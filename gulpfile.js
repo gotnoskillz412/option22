@@ -6,7 +6,7 @@ const del = require('del');
 const gulpWebpack = require('gulp-webpack');
 const webpack = require('webpack');
 const nodeExternals = require('webpack-node-externals');
-const spawn = require('child_process').spawn;
+const nodemon = require('gulp-nodemon');
 
 gulp.task('clean', () => {
 	return del(['dist']);
@@ -14,7 +14,7 @@ gulp.task('clean', () => {
 
 // Run linter on javascript
 gulp.task('lint', ['clean'], () => {
-	return gulp.src(['**/*.js','!node_modules/**'])
+	return gulp.src(['**/*.js','!node_modules/**', '!gulpfile.js'])
 		.pipe(eslint())
 		.pipe(eslint.format())
 		.pipe(eslint.failAfterError());
@@ -55,18 +55,24 @@ gulp.task('js', ['clean', 'lint'], () => {
 
 // Serve up the files
 gulp.task('start', ['clean', 'js'], () => {
-	if (process.env.NODE_ENV && process.env.NODE_ENV.toLowerCase() === 'production'){
-		return spawn('node', ['dist/js/main.js'], { stdio: 'inherit' });
-	}
-	return spawn('node', ['src/app.js'], { stdio: 'inherit' })
+	const stream = nodemon({
+		script: 'dist/js/main.js',
+		ext: 'html js',
+		ignore: 'dist/js/main.js',
+		tasks: ['clean', 'lint', 'js']
+	});
 
-});
-
-// Watch Files For Changes
-gulp.task('watch', ['clean', 'lint', 'js'], function() {
-	gulp.watch('src/*/**.js', ['lint', 'js']);
+	stream
+		.on('restart', function () {
+			console.log('restarted!')
+		})
+		.on('crash', function() {
+			console.error('Application has crashed!\n');
+			stream.emit('restart', 10);  // restart the server in 10 seconds
+		});
 });
 
 gulp.task('build', ['clean', 'lint', 'js']);
-gulp.task('serve', ['clean', 'lint', 'js', 'start', 'watch']);
-gulp.task('default', ['watch']);
+gulp.task('serve', ['clean', 'lint', 'js', 'start']);
+gulp.task('default', ['clean', 'lint', 'js']);
+
