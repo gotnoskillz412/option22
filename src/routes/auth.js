@@ -6,12 +6,47 @@ const logger = require('winston');
 const jwt = require('jsonwebtoken');
 
 const account = require('../models/account');
+const crypto = require('../services/crypto');
 
 // TODO need salt and hash methods for passwords
-
-router.post('/register', function () {
+/**
+ * Registration Endpoint
+ * @memberOf auth
+ * @function
+ * @name register
+ */
+router.post('/register', function (req, res) {
+	// TODO check to make sure that the username and email are valid
+	let username = req.body.username.toLowerCase();
+	let email = req.body.email.toLowerCase();
 
 	// first check for if a user exists already
+	account.findOne({
+		email: email
+	}, (emailError) => {
+		if (emailError) {
+			account.findOne({
+				username: username
+			}, (usernameError) => {
+				if (usernameError) {
+					// TODO Check to make sure password meets constraints
+					let password = req.body.password;
+
+					// TODO Create a new user account
+					let creds = crypto.generateSaltAndHash(password);
+					let newAccount = new account({
+						username: username,
+						email: email,
+						salt: creds.salt,
+						hash: creds.hash
+					})
+				}
+			});
+		} else {
+			// let them know email is taken
+			res.status(400).json({'message': 'An account with this email already exists'});
+		}
+	});
 
 	// later, verify email address
 });

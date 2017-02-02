@@ -32,7 +32,6 @@
 
 		"handle-callback-err": "error",   // enforces error handling in callbacks (off by default) (on by default in the node environment)
 		"no-var": "error",
-		"quotes": ["error", "single"],
-		"prefer-const": "error"
+		"quotes": ["error", "single"]
 	}
 }

@@ -6,8 +6,9 @@ const cookieParser = require('cookie-parser');
 const logger = require('winston');
 const expressSession = require('express-session');
 const mongoose = require('mongoose');
+// TODO get the CORS stuff going
 
-const security = require('./services/security');
+const security = require('./middleware/security');
 const routes = require('./routes/routes');
 
 const PORT = 3000;

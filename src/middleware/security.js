@@ -1,6 +1,15 @@
+'use strict';
+
 const jwt = require('jsonwebtoken');
 
-function security () {
+/**
+ * @module security
+ * @description Checks for a token and verifies it for a logged in user.  Redirects to login page if token is not
+ * 				present or is invalid.
+ *
+ * @returns {function(*, *, *)}
+ */
+const security = () => {
 	return (req, res, next) => {
 		// Check for token
 		let token = req.headers.authorization.split(' ');
@@ -19,6 +28,6 @@ function security () {
 			});
 		}
 	}
-}
+};
 
 exports = module.exports = security;
