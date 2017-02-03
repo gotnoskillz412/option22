@@ -55,12 +55,17 @@ gulp.task('js', ['clean', 'lint'], () => {
 
 // Serve up the files
 gulp.task('start', ['clean', 'js'], () => {
-	const stream = nodemon({
+	const stream = process.env.NODE_ENV === 'production' ? nodemon({
 		script: 'dist/js/main.js',
 		ext: 'html js',
 		ignore: 'dist/js/main.js',
 		tasks: ['clean', 'lint', 'js']
-	});
+	}) : nodemon({
+				script: 'src/app.js',
+				ext: 'html js',
+				ignore: 'src/app.js',
+				tasks: ['lint']
+			});
 
 	stream
 		.on('restart', function () {

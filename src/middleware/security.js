@@ -12,11 +12,11 @@ const jwt = require('jsonwebtoken');
 const security = () => {
 	return (req, res, next) => {
 		// Check for token
-		let token = req.headers.authorization.split(' ');
-		token = token.length === 2 && token[0].toLowerCase() === 'bearer' ? token[1] : null;
+		let token = req.headers.authorization && req.headers.authorization.split(' ');
+		token = token && token.length === 2 && token[0].toLowerCase() === 'bearer' ? token[1] : null;
 
 		if (!token) {
-			res.status(302).redirect('/auth/login');
+			res.status(401).json({message: 'Unauthorized: No token provided'});
 		} else {
 			jwt.verify(token, process.env.MY_SECRET, (err, decodedToken) => {
 				if (err) {

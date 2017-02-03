@@ -8,23 +8,27 @@ const expressSession = require('express-session');
 const mongoose = require('mongoose');
 // TODO get the CORS stuff going
 
-const security = require('./middleware/security');
+// const security = require('./middleware/security');
 const routes = require('./routes/routes');
 
 const PORT = 3000;
 const app = express();
 const mongoUri = process.env.MONGO_URI || 'mongodb://localhost/option22';
 
+//TODO remove this
+process.env.MY_SECRET = 'LordJeanLucSkywalker';
+
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended: false}));
+app.use(bodyParser.urlencoded({
+	extended: false,
+	type: '*/x-www-form-urlencoded'
+}));
 app.use(cookieParser());
 app.use(expressSession({
 	secret: process.env.MY_SECRET,
 	resave: false,
 	saveUninitialized: false
 }));
-
-app.use(security());
 
 app.use('/', routes.index);
 app.use('/auth', routes.auth);
