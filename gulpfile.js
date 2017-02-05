@@ -64,7 +64,7 @@ gulp.task('start', ['clean', 'js'], () => {
 				script: 'src/app.js',
 				ext: 'html js',
 				ignore: 'src/app.js',
-				tasks: ['lint']
+				tasks: ['lint', 'js']
 			});
 
 	stream

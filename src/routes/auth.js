@@ -70,7 +70,7 @@ router.post('/register', function (req, res) {
 
 router.post('/login', (req, res) => {
 	// Check credentials and then provide token
-	let username = req.body.username.toLowerCase();
+	let username = req.body.username && req.body.username.toLowerCase();
 	let password = req.body.password;
 	account.findOne({
 		username: username

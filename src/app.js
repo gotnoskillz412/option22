@@ -6,10 +6,14 @@ const cookieParser = require('cookie-parser');
 const logger = require('winston');
 const expressSession = require('express-session');
 const mongoose = require('mongoose');
-// TODO get the CORS stuff going
-
+const cors = require('cors');
 // const security = require('./middleware/security');
 const routes = require('./routes/routes');
+
+const corsOptions = {
+	origin: 'http://localhost:4200',
+	optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+};
 
 const PORT = 3000;
 const app = express();
@@ -29,6 +33,7 @@ app.use(expressSession({
 	resave: false,
 	saveUninitialized: false
 }));
+app.use(cors(corsOptions));
 
 app.use('/', routes.index);
 app.use('/auth', routes.auth);
