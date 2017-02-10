@@ -52,7 +52,11 @@ router.post('/register', function (req, res) {
 							res.status(500).json({message: 'Problem creating new account'});
 						} else {
 							logger.info('Succressfull created acount for: ', email);
-							res.status(201).json({success: 'ok'});
+							let token = jwt.sign({
+								exp: Math.floor(Date.now() / 1000) + 3600,
+								data: username
+							}, process.env.MY_SECRET);
+							res.status(201).json({token: token});
 						}
 					})
 				} else {
@@ -82,11 +86,11 @@ router.post('/login', (req, res) => {
 			// verify the password, then set password
 			if (!!user &&crypto.verifyPassword(password, user.salt, user.hash)) {
 				let token = jwt.sign({
-					exp: Math.floor(Date.now() / 1000) + (60 * 6),
+					exp: Math.floor(Date.now() / 1000) + 3600,
 					data: user.username
 				}, process.env.MY_SECRET);
 				logger.info('login success');
-				res.status(200).json({token: token});
+				res.status(201).json({token: token});
 			} else {
 				res.status(401).json({message: 'Incorrect username or password'});
 			}
