@@ -7,20 +7,27 @@ const logger = require('winston');
 const expressSession = require('express-session');
 const mongoose = require('mongoose');
 const cors = require('cors');
-// const security = require('./middleware/security');
+
 const routes = require('./routes/routes');
+const PORT = parseInt(process.env.PORT, 10);
 
 const corsOptions = {
-	origin: 'http://localhost:4200',
+	origin: process.env.BASE_WEB,
 	optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
 };
 
-const PORT = 3000;
-const app = express();
-const mongoUri = process.env.MONGO_URI || 'mongodb://localhost/option22';
+const forceSSL = function() {
+	return function (req, res, next) {
+		if (req.headers['x-forwarded-proto'] !== 'https') {
+			return res.redirect(
+					['https://', req.get('Host'), req.url].join('')
+			);
+		}
+		next();
+	};
+};
 
-//TODO remove this
-process.env.MY_SECRET = 'LordJeanLucSkywalker';
+const app = express();
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
@@ -34,12 +41,13 @@ app.use(expressSession({
 	saveUninitialized: false
 }));
 app.use(cors(corsOptions));
+app.use(forceSSL());
 
 app.use('/', routes.index);
 app.use('/auth', routes.auth);
 
 mongoose.Promise = global.Promise;
-mongoose.connect(mongoUri);
+mongoose.connect(process.env.MONGO_URI);
 /// catch 404 and forwarding to error handler
 app.use(function (req, res, next) {
 	const err = new Error('Not Found');
