@@ -37,7 +37,6 @@ router.post('/register', function (req, res) {
 					// TODO Check to make sure password meets constraints
 					let password = req.body.password;
 
-					// TODO Create a new user account
 					let creds = crypto.generateSaltAndHash(password);
 					let newAccount = new account({
 						username: username,

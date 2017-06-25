@@ -2,5 +2,6 @@
 
 exports = module.exports = {
 	index: require('./index'),
-	auth: require('./auth')
+	auth: require('./auth'),
+	email: require('./email')
 };

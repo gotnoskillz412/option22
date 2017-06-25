@@ -9,22 +9,11 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 
 const routes = require('./routes/routes');
-const PORT = parseInt(process.env.PORT, 10);
+const PORT = parseInt(process.env.API_PORT, 10) || 3000;
 
 const corsOptions = {
 	origin: process.env.BASE_WEB,
 	optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
-};
-
-const forceSSL = function() {
-	return function (req, res, next) {
-		if (req.headers['x-forwarded-proto'] !== 'https') {
-			return res.redirect(
-					['https://', req.get('Host'), req.url].join('')
-			);
-		}
-		next();
-	};
 };
 
 const app = express();
@@ -41,10 +30,11 @@ app.use(expressSession({
 	saveUninitialized: false
 }));
 app.use(cors(corsOptions));
-app.use(forceSSL());
+// app.use(forceSSL());
 
 app.use('/', routes.index);
 app.use('/auth', routes.auth);
+app.use('/email', routes.email);
 
 mongoose.Promise = global.Promise;
 mongoose.connect(process.env.MONGO_URI);
