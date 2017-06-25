@@ -3,5 +3,6 @@
 exports = module.exports = {
 	index: require('./index'),
 	auth: require('./auth'),
-	email: require('./email')
+	email: require('./email'),
+	profile: require('./profile')
 };
