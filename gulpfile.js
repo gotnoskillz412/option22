@@ -33,7 +33,11 @@ gulp.task('js', ['clean', 'lint'], () => {
 					query: {
 						presets: ['es2015']
 					}
-				}]
+				},
+					{
+						loader: 'json-loader',
+						test: /\.json$/
+					}]
 			},
 			output: {
 				filename: 'main.js'

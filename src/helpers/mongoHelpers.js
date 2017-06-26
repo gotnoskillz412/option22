@@ -1,6 +1,7 @@
 'use strict';
 
 const Account = require('../models/account.mongoose');
+const constants = require('./constants');
 const logger = require('winston');
 const Profile = require('../models/profile.mongoose');
 
@@ -14,7 +15,7 @@ const findAccount = (params) => {
     return new Promise(function (resolve, reject) {
         Account.findOne(params, (err, result) => {
             if (err) {
-                reject(err);
+                reject({step: constants.mongo.steps.accountFind, message: 'Error finding account', error: err });
             } else {
                 resolve(result);
             }
@@ -32,9 +33,9 @@ const createAccount = (params) => {
         let account = new Account(params);
         account.save((err, result) => {
             if (err) {
-                reject(err);
+                reject({step: constants.mongo.steps.accountCreate, message: 'Error creating account', error: err });
             } else {
-                logger.info(`Succressfull created acount for: ${params.email}`);
+                logger.info(`Successfully created acount for: ${params.email}`);
                 resolve(result);
             }
         });
@@ -50,9 +51,9 @@ const removeAccount = (params) => {
     return new Promise(function (resolve, reject) {
         Account.remove(params, (err, result) => {
             if (err) {
-                reject(err);
+                reject({step: constants.mongo.steps.accountDelete, message: 'Error deleting account', error: err });
             } else {
-                logger.info(`Succressfull removed acount for: ${params.email}`);
+                logger.info(`Successfully removed acount for: ${params.email}`);
                 resolve(result);
             }
         });
@@ -69,9 +70,9 @@ const createProfile = (params) => {
         let profile = new Profile(params);
         profile.save((err, result) => {
             if (err) {
-                reject(err);
+                reject({step: constants.mongo.steps.profileCreate, message: 'Error creating profile', error: err });
             } else {
-                logger.info(`Succressfull created profile for: ${params.email}`);
+                logger.info(`Successfully created profile for: ${params.email}`);
                 resolve(result);
             }
         });

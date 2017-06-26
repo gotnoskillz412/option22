@@ -1,0 +1,12 @@
+{
+	"mongo": {
+		"steps": {
+			"accountCreate": "account-create",
+			"accountDelete": "account-delete",
+			"accountFind": "account-find",
+			"profileCreate": "profile-create",
+			"profileDelete": "profile-delete",
+			"profileUpdate": "profile-update"
+		}
+	}
+}
