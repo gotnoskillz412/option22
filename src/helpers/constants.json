@@ -8,5 +8,6 @@
 			"profileDelete": "profile-delete",
 			"profileUpdate": "profile-update"
 		}
-	}
+	},
+	"blacklistPrefix": "option22-token-blacklist-"
 }

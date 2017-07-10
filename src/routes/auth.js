@@ -1,14 +1,16 @@
 'use strict';
 
 const express = require('express');
-const router = express.Router();
-const logger = require('winston');
 const jwt = require('jsonwebtoken');
+const logger = require('winston');
 
+const cache = require('../services/cache');
 const constants = require('../helpers/constants');
 const crypto = require('../services/crypto');
 const mongoHelpers = require('../helpers/mongoHelpers');
 const security = require('../middleware/security');
+
+const router = express.Router();
 
 /**
  * Registration Endpoint
@@ -105,13 +107,20 @@ router.post('/login', (req, res) => {
 });
 
 router.get('/logout', security(), function (req, res) {
-    // blacklist token somehow until it expires
-
-    res.redirect('/');
-});
-
-router.get('/test', security(), (req, res) => {
-    res.status(200).send('ok');
+    let token = req.headers.authorization && req.headers.authorization.split(' ');
+    token = token && token.length === 2 && token[0].toLowerCase() === 'bearer' ? token[1] : null;
+    cache.set(constants.blacklistPrefix + token, true, (err, response) => {
+        if (response) {
+            setTimeout(() => {
+                cache.del(constants.blacklistPrefix + token);
+            }, 3600000);
+        }
+        if (req.query.redirect_uri) {
+            res.redirect(req.query.redirect_uri, {});
+        } else {
+            res.status(200).send('ok');
+        }
+    });
 });
 
 exports = module.exports = router;
