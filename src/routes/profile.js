@@ -3,9 +3,9 @@
 const express = require('express');
 const router = new express.Router();
 
-router.get('/', function () {
+router.get('/', function (req, res) {
     // TODO return all profile information, including profile picture
-
+    res.status(200).send('success');
 });
 
 router.put('/:accountId', function () {
