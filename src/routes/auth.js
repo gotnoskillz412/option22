@@ -56,12 +56,15 @@ router.post('/register', function (req, res) {
             });
         })
         .then(() => {
-            return mongoHelpers.createProfile({ email: email });
+            return mongoHelpers.createProfile({username: username, email: email });
         })
         .then(() => {
             let token = jwt.sign({
                 exp: Math.floor(Date.now() / 1000) + 3600,
-                data: username
+                data: {
+                    username: username,
+                    email: email
+                }
             }, process.env.MY_SECRET);
             res.status(201).json({ token: token });
         })
@@ -88,7 +91,10 @@ router.post('/login', (req, res) => {
             if (!!account && crypto.verifyPassword(password, account.salt, account.hash)) {
                 let token = jwt.sign({
                     exp: Math.floor(Date.now() / 1000) + 3600,
-                    data: account.username
+                    data: {
+                        username: username,
+                        email: account.email
+                    }
                 }, process.env.MY_SECRET);
                 logger.info('login success');
                 res.status(201).json({ token: token });
@@ -110,6 +116,9 @@ router.get('/logout', security(), function (req, res) {
     let token = req.headers.authorization && req.headers.authorization.split(' ');
     token = token && token.length === 2 && token[0].toLowerCase() === 'bearer' ? token[1] : null;
     cache.set(constants.blacklistPrefix + token, true, (err, response) => {
+        if (err) {
+            req.status(500).json({message: 'Failed to log out'});
+        }
         if (response) {
             setTimeout(() => {
                 cache.del(constants.blacklistPrefix + token);

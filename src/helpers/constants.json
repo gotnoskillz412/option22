@@ -6,7 +6,8 @@
 			"accountFind": "account-find",
 			"profileCreate": "profile-create",
 			"profileDelete": "profile-delete",
-			"profileUpdate": "profile-update"
+			"profileUpdate": "profile-update",
+			"profileFind": "profile-find"
 		}
 	},
 	"blacklistPrefix": "option22-token-blacklist-"

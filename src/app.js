@@ -7,6 +7,7 @@ const logger = require('winston');
 const expressSession = require('express-session');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const multer = require('multer');
 
 const security = require('./middleware/security');
 const routes = require('./routes/routes');
@@ -14,6 +15,7 @@ const PORT = parseInt(process.env.API_PORT, 10) || 3000;
 
 const corsOptions = {
     origin: process.env.BASE_WEB || '*',
+    credentials: true,
     optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
 };
 
@@ -33,6 +35,12 @@ app.use(expressSession({
 
 app.use(cors(corsOptions));
 // app.use(forceSSL());
+app.use(multer({
+    dest:'./uploads/',
+    rename: function (fieldname, filename) {
+        return filename;
+    }
+}).single('file'));
 
 app.use('/', routes.index);
 app.use('/auth', routes.auth);

@@ -79,9 +79,27 @@ const createProfile = (params) => {
     });
 };
 
+/**
+ * A wrapper around the mongoose findOne method in order to use promises.  Finds a profile based on provided params.
+ * @param params
+ * @returns {Promise}
+ */
+const findProfile = (params) => {
+    return new Promise(function (resolve, reject) {
+        Profile.findOne(params, (err, result) => {
+            if (err) {
+                reject({step: constants.mongo.steps.profileFind, message: 'Error finding profile', error: err });
+            } else {
+                resolve(result);
+            }
+        });
+    });
+};
+
 exports = module.exports = {
     findAccount: findAccount,
     createAccount: createAccount,
     removeAccount: removeAccount,
-    createProfile: createProfile
+    createProfile: createProfile,
+    findProfile: findProfile
 };
