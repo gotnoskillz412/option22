@@ -11,11 +11,11 @@ router.get('/', function (req, res) {
     mongoHelpers.findProfile({ username: req.decoded.data.username, email: req.decoded.data.email })
         .then((profile) => {
             const profileInfo = {
-                profile: profile,
-                picture: profile.picture.data.toString('base64')
+                profile: profile
             };
             res.status(200).json(profileInfo);
-        }).catch(() => {
+        }).catch((err) => {
+            console.log(err);
             res.status(500).json({ message: 'Could not find profile' });
         });
 });
@@ -23,8 +23,7 @@ router.get('/', function (req, res) {
 router.post('/picture', function (req, res) {
     mongoHelpers.findProfile({ username: req.decoded.data.username, email: req.decoded.data.email })
         .then((profile) => {
-            profile.picture.data = fs.readFileSync(req.file.path);
-            profile.picture.contentType = 'image/png';
+            profile.picture = req.body.image;
             profile.save((err) => {
                 if (err) {
                     console.log(err);
@@ -34,7 +33,6 @@ router.post('/picture', function (req, res) {
                 }
             });
         }).catch((err) => {
-        console.log(err);
         res.status(500).json({ message: 'Could not find profile' });
     });
 });

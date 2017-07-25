@@ -5,7 +5,7 @@ const Schema = mongoose.Schema;
 
 // Create the mongoose schema for a new user.
 const Profile = new Schema({
-    picture: { data: Buffer, contentType: String },
+    picture: String,
     description: String,
     likes: [String],
     email: String,

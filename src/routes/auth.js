@@ -58,7 +58,7 @@ router.post('/register', function (req, res) {
         .then(() => {
             return mongoHelpers.createProfile({username: username, email: email });
         })
-        .then(() => {
+        .then((profile) => {
             let token = jwt.sign({
                 exp: Math.floor(Date.now() / 1000) + 3600,
                 data: {
@@ -66,7 +66,7 @@ router.post('/register', function (req, res) {
                     email: email
                 }
             }, process.env.MY_SECRET);
-            res.status(201).json({ token: token });
+            res.status(201).json({ token: token, profile: profile });
         })
         .catch((err) => {
             if (err.step === constants.mongo.steps.profileCreate) {
@@ -89,15 +89,17 @@ router.post('/login', (req, res) => {
     mongoHelpers.findAccount({username: username})
         .then((account) => {
             if (!!account && crypto.verifyPassword(password, account.salt, account.hash)) {
-                let token = jwt.sign({
-                    exp: Math.floor(Date.now() / 1000) + 3600,
-                    data: {
-                        username: username,
-                        email: account.email
-                    }
-                }, process.env.MY_SECRET);
-                logger.info('login success');
-                res.status(201).json({ token: token });
+                mongoHelpers.findProfile({username: username}).then((profile) => {
+                    let token = jwt.sign({
+                        exp: Math.floor(Date.now() / 1000) + 3600,
+                        data: {
+                            username: username,
+                            email: account.email
+                        }
+                    }, process.env.MY_SECRET);
+                    logger.info('login success');
+                    res.status(201).json({ token: token, profile: profile });
+                });
             } else {
                 res.status(401).json({ message: 'Incorrect username or password' });
             }
