@@ -40,7 +40,6 @@ router.post('/', (req, res) => {
 			}
 		});
 	} else {
-		console.log('bad email', req.body);
 		res.status(400).json({message: 'Invalid email format'});
 	}
 });

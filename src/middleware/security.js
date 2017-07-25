@@ -21,12 +21,12 @@ const security = () => {
 			res.status(401).json({message: 'Unauthorized: No token provided'});
 		} else {
             cache.get(constants.blacklistPrefix + token, (err, response) => {
-            	console.log('getting blacklist:', err, response);
             	if (response) {
                     res.status(401).json({message: 'Old token provided'});
-				} else {
+				} else if (err) {
+            	    res.status(500).json({message: 'Error checking old token'});
+                } else {
                     jwt.verify(token, process.env.MY_SECRET, (err, decodedToken) => {
-                        console.log('verifying token', err, decodedToken);
                         if (err) {
                             res.status(401).json({message: 'Failed to authenticate the token'});
                         } else {
