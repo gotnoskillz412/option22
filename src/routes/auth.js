@@ -12,12 +12,7 @@ const security = require('../middleware/security');
 
 const router = express.Router();
 
-/**
- * Registration Endpoint
- * @memberOf auth
- * @function
- * @name register
- */
+// Registration endpoint for new accounts and profiles
 router.post('/register', function (req, res) {
     // TODO check to make sure that the username and email are valid
     let username = req.body.username.toLowerCase();
@@ -82,6 +77,7 @@ router.post('/register', function (req, res) {
         });
 });
 
+// Login endpoint
 router.post('/login', (req, res) => {
     // Check credentials and then provide token
     let username = req.body.username && req.body.username.toLowerCase();
@@ -114,6 +110,7 @@ router.post('/login', (req, res) => {
         });
 });
 
+// Logout endpoint
 router.get('/logout', security(), function (req, res) {
     let token = req.headers.authorization && req.headers.authorization.split(' ');
     token = token && token.length === 2 && token[0].toLowerCase() === 'bearer' ? token[1] : null;

@@ -7,9 +7,11 @@ const Profile = require('../models/profile.mongoose');
 
 
 /**
- * A wrapper around the mongoose findOne method in order to use promises.  Finds an account based on provided params.
- * @param params
- * @returns {Promise}
+ * @name findAccount
+ * @methodOf mongoHelpers
+ * @description A wrapper around the mongoose findOne method in order to use promises.  Finds an account based on provided params.
+ * @param {object} params - The parameters used to find the account
+ * @returns {Promise} - Resolves with the found account
  */
 const findAccount = (params) => {
     return new Promise(function (resolve, reject) {
@@ -24,9 +26,11 @@ const findAccount = (params) => {
 };
 
 /**
- * A wrapper around the mongoose save method in order to use promises.  Creates an account based on provided params.
- * @param params
- * @returns {Promise}
+ * @name createAccount
+ * @methodOf mongoHelpers
+ * @description A wrapper around the mongoose save method in order to use promises.  Creates an account based on provided params.
+ * @param {object} params - The params used to create an account
+ * @returns {Promise} - Resolves with the created account
  */
 const createAccount = (params) => {
     return new Promise(function (resolve, reject) {
@@ -43,9 +47,11 @@ const createAccount = (params) => {
 };
 
 /**
- * A wrapper around the mongoose remove method in order to use promises.  Removes an account based on provided params.
- * @param params
- * @returns {Promise}
+ * @name removeAccount
+ * @methodOf mongoHelpers
+ * @description A wrapper around the mongoose remove method in order to use promises.  Removes an account based on provided params.
+ * @param {object} params - The parameters used to find the account to be removed
+ * @returns {Promise} - Resolves with the removed account
  */
 const removeAccount = (params) => {
     return new Promise(function (resolve, reject) {
@@ -61,9 +67,11 @@ const removeAccount = (params) => {
 };
 
 /**
- * A wrapper around the mongoose save method in order to use promises.  Creates a profile based on provided params.
- * @param params
- * @returns {Promise}
+ * @name createProfile
+ * @methodOf mongoHelpers
+ * @description A wrapper around the mongoose save method in order to use promises.  Creates a profile based on provided params.
+ * @param {object} params - Parameters used to create profile
+ * @returns {Promise} - Resolves with the created profile
  */
 const createProfile = (params) => {
     return new Promise(function (resolve, reject) {
@@ -80,9 +88,11 @@ const createProfile = (params) => {
 };
 
 /**
- * A wrapper around the mongoose findOne method in order to use promises.  Finds a profile based on provided params.
- * @param params
- * @returns {Promise}
+ * @name findProfile
+ * @methodOf mongoHelpers
+ * @description A wrapper around the mongoose findOne method in order to use promises.  Finds a profile based on provided params.
+ * @param {object} params - Parameters used to find the profile
+ * @returns {Promise} - Resolves with the found profile
  */
 const findProfile = (params) => {
     return new Promise(function (resolve, reject) {

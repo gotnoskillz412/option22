@@ -1,15 +1,16 @@
 'use strict';
 
-const express = require('express');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
+const cors = require('cors');
+const express = require('express');
 const expressSession = require('express-session');
 const mongoose = require('mongoose');
-const cors = require('cors');
-const multer = require('multer');
+
 const logger = require('./services/logger');
-const security = require('./middleware/security');
 const routes = require('./routes/routes');
+const security = require('./middleware/security');
+
 const PORT = parseInt(process.env.API_PORT, 10) || 3000;
 
 const corsOptions = {
@@ -33,13 +34,6 @@ app.use(expressSession({
 }));
 
 app.use(cors(corsOptions));
-// app.use(forceSSL());
-app.use(multer({
-    dest:'./uploads/',
-    rename: function (fieldname, filename) {
-        return filename;
-    }
-}).single('file'));
 
 app.use('/', routes.index);
 app.use('/auth', routes.auth);
@@ -48,6 +42,8 @@ app.use('/profile', security(), routes.profile);
 
 mongoose.Promise = global.Promise;
 mongoose.connect(process.env.MONGO_URI);
+
+
 /// catch 404 and forwarding to error handler
 app.use(function (req, res, next) {
     const err = new Error('Not Found');
@@ -57,15 +53,10 @@ app.use(function (req, res, next) {
 
 /// error handlers
 
-// development error handler
 // will print stacktrace
 if (app.get('env') === 'development') {
     app.use((err, req, res) => {
         res.status(err.status || 500);
-        res.render('error', {
-            message: err.message,
-            error: err
-        });
     });
 }
 
@@ -73,12 +64,8 @@ if (app.get('env') === 'development') {
 // no stacktraces leaked to user
 app.use(function (err, req, res) {
     res.status(err.status || 500);
-    res.render('error', {
-        message: err.message,
-        error: {}
-    });
 });
 
 app.listen(PORT, () => {
-    logger.info(`App listening on port ${PORT}...`);
+    logger.info('app.js', `App listening on port ${PORT}...`);
 });

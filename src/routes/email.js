@@ -2,46 +2,69 @@
 
 const express = require('express');
 const nodemailer = require('nodemailer');
-const logger = require('winston');
+
+const logger = require('../services/logger');
 
 const router = express.Router();
 
-// login
+// Create the email transport
 const smtpTransport = nodemailer.createTransport({
-	service: 'Gmail',
-	auth: {
-		user: process.env.SERVICE_EMAIL,
-		pass: process.env.EMAIL_PASSWORD
-	}
+    service: 'Gmail',
+    auth: {
+        user: process.env.SERVICE_EMAIL,
+        pass: process.env.EMAIL_PASSWORD
+    }
 });
 
-const sendMail = function (name, fromAddress, subject, content, next) {
-	let mailOptions = {
-		from: `${name} <${fromAddress}>`,
-		to: process.env.SERVICE_EMAIL,
-		replyTo: fromAddress,
-		subject: subject,
-		html: content
-	};
+/**
+ * @function
+ * @name sendMail
+ * @methodOf email
+ * @description Send an email to the provided email address in the env parameters
+ *
+ * @param {string} name The name of the person sending the email
+ * @param {string} fromAddress The email to put in the replyTo section
+ * @param {string} subject The subject of the email
+ * @param {string} content The content of the email
+ * @param {function} next The callback for after the email is sent
+ */
+const sendMail = (name, fromAddress, subject, content, next) => {
+    let mailOptions = {
+        from: `${name} <${fromAddress}>`,
+        to: process.env.SERVICE_EMAIL,
+        replyTo: fromAddress,
+        subject: subject,
+        html: content
+    };
 
-	smtpTransport.sendMail(mailOptions, next);
+    smtpTransport.sendMail(mailOptions, next);
+};
+
+/**
+ * @function
+ * @name afterSend
+ * @methodOf email
+ * @description The callback to call after sending an email
+ *
+ * @param {object} error Not null if an error ocurred when sending the email
+ */
+const afterSend = (error) => {
+    if (error) {
+        logger.error('email', 'Error sending email', { error: error });
+        res.status(500).json({ message: 'Unable to send email at this time.' });
+    } else {
+        logger.info('email', 'Email sent successfully');
+        res.status(201).json({ message: 'Email sent successfully' });
+    }
 };
 
 router.post('/', (req, res) => {
-	if (req.body.email && req.body.name && req.body.subject && req.body.message) {
-		let content = `<p>${req.body.message}</p>`;
-		sendMail(req.body.name, req.body.email, req.body.subject, content, (error, info) => {
-			if (error) {
-				logger.error(error);
-				res.status(500).json({message: 'Unable to send email at this time.'});
-			} else {
-				logger.info(info);
-				res.status(201).json({message: 'Email sent successfully'});
-			}
-		});
-	} else {
-		res.status(400).json({message: 'Invalid email format'});
-	}
+    if (req.body.email && req.body.name && req.body.subject && req.body.message) {
+        let content = `<p>${req.body.message}</p>`;
+        sendMail(req.body.name, req.body.email, req.body.subject, content, afterSend);
+    } else {
+        res.status(400).json({ message: 'Invalid email format' });
+    }
 });
 
 exports = module.exports = router;

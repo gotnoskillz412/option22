@@ -1,6 +1,7 @@
 'use strict';
 
 const mongoose = require('mongoose');
+
 const Schema = mongoose.Schema;
 
 // Create the mongoose schema for a new user.

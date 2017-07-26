@@ -5,7 +5,7 @@ const crypto = require('crypto');
 const SALT_LENGTH = 32;
 
 /**
- * generateSalt
+ * @name generateSalt
  * @methodOf crypto
  * @description Generates a unique salt for each user
  * @param {int} length - The length of the generated salt
@@ -18,7 +18,7 @@ const generateSalt = (length) => {
 };
 
 /**
- * sha512
+ * @name sha512
  * @methodOf crypto
  * @description Generates the hash based on the user's password and their personal salt
  * @param {string} password - The password provided by the user
@@ -32,7 +32,7 @@ const sha512 = (password, salt) => {
 };
 
 /**
- * generateSaltAndHash
+ * @name generateSaltAndHash
  * @methodOf crypto
  * @param {string} password - The user provided password
  * @returns {{salt: string, hash: string}}
@@ -47,7 +47,7 @@ const generateSaltAndHash = (password) => {
 };
 
 /**
- * verifyPassword
+ * @name verifyPassword
  * @methodOf crypto
  * @param {string} password - The password provided at login
  * @param {string} salt - The salt for the user found in the json web token

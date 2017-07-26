@@ -7,10 +7,10 @@ const constants = require('../helpers/constants');
 const logger = require('../services/logger');
 
 /**
- * @module security
+ * @name security
+ * @methodOf security
  * @description Checks for a token and verifies it for a logged in user.
- *
- * @returns {function(*, *, *)}
+ * @returns {function(*, *, *)} - The middleware function for checking the auth tokens
  */
 const security = () => {
 	return (req, res, next) => {
