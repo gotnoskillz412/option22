@@ -3,12 +3,11 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
-const logger = require('winston');
 const expressSession = require('express-session');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const multer = require('multer');
-
+const logger = require('./services/logger');
 const security = require('./middleware/security');
 const routes = require('./routes/routes');
 const PORT = parseInt(process.env.API_PORT, 10) || 3000;

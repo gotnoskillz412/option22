@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 
 const cache = require('../services/cache');
 const constants = require('../helpers/constants');
+const logger = require('../services/logger');
 
 /**
  * @module security
@@ -24,6 +25,7 @@ const security = () => {
             	if (response) {
                     res.status(401).json({message: 'Old token provided'});
 				} else if (err) {
+            	    logger.error('security', 'Error retrieving blacklisted tokens', {error: err});
             	    res.status(500).json({message: 'Error checking old token'});
                 } else {
                     jwt.verify(token, process.env.MY_SECRET, (err, decodedToken) => {

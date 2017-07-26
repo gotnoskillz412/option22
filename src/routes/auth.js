@@ -2,11 +2,11 @@
 
 const express = require('express');
 const jwt = require('jsonwebtoken');
-const logger = require('winston');
 
 const cache = require('../services/cache');
 const constants = require('../helpers/constants');
 const crypto = require('../services/crypto');
+const logger = require('../services/logger');
 const mongoHelpers = require('../helpers/mongoHelpers');
 const security = require('../middleware/security');
 
@@ -56,7 +56,7 @@ router.post('/register', function (req, res) {
             });
         })
         .then(() => {
-            return mongoHelpers.createProfile({username: username, email: email });
+            return mongoHelpers.createProfile({ username: username, email: email });
         })
         .then((profile) => {
             let token = jwt.sign({
@@ -76,7 +76,7 @@ router.post('/register', function (req, res) {
             } else if (!err.error) {
                 res.status(400).json({ message: err.message });
             } else {
-                logger.error(err.step, err.message, err.error);
+                logger.error('auth', err.message, { error: err.error, step: err.step });
                 res.status(500).json({ message: err.message });
             }
         });
@@ -86,10 +86,10 @@ router.post('/login', (req, res) => {
     // Check credentials and then provide token
     let username = req.body.username && req.body.username.toLowerCase();
     let password = req.body.password;
-    mongoHelpers.findAccount({username: username})
+    mongoHelpers.findAccount({ username: username })
         .then((account) => {
             if (!!account && crypto.verifyPassword(password, account.salt, account.hash)) {
-                mongoHelpers.findProfile({username: username}).then((profile) => {
+                mongoHelpers.findProfile({ username: username }).then((profile) => {
                     let token = jwt.sign({
                         exp: Math.floor(Date.now() / 1000) + 3600,
                         data: {
@@ -97,7 +97,7 @@ router.post('/login', (req, res) => {
                             email: account.email
                         }
                     }, process.env.MY_SECRET);
-                    logger.info('login success');
+                    logger.verbose('auth', 'Login successful', { email: account.email });
                     res.status(201).json({ token: token, profile: profile });
                 });
             } else {
@@ -108,7 +108,7 @@ router.post('/login', (req, res) => {
             if (!err.error) {
                 res.status(400).json({ message: err.message });
             } else {
-                logger.error(err.step, err.message, err.error);
+                logger.error('auth', err.message, { error: err.error, step: err.step });
                 res.status(500).json({ message: err.message });
             }
         });
@@ -119,7 +119,8 @@ router.get('/logout', security(), function (req, res) {
     token = token && token.length === 2 && token[0].toLowerCase() === 'bearer' ? token[1] : null;
     cache.set(constants.blacklistPrefix + token, true, (err, response) => {
         if (err) {
-            req.status(500).json({message: 'Failed to log out'});
+            logger.error('auth', 'Failed to logout', { error: err });
+            req.status(500).json({ message: 'Failed to log out' });
         }
         if (response) {
             setTimeout(() => {

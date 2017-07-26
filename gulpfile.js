@@ -7,9 +7,10 @@ const gulpWebpack = require('gulp-webpack');
 const webpack = require('webpack');
 const nodeExternals = require('webpack-node-externals');
 const nodemon = require('gulp-nodemon');
+const fs = require('fs');
 
 gulp.task('clean', () => {
-	return del(['dist']);
+	return del(['dist', 'logs']);
 });
 
 // Run linter on javascript
@@ -22,6 +23,10 @@ gulp.task('lint', ['clean'], () => {
 
 // Concatinate and uglify javascript
 gulp.task('js', ['clean', 'lint'], () => {
+    if (!fs.existsSync('logs')) {
+        fs.mkdirSync('logs');
+        fs.closeSync(fs.openSync('logs/log.txt', 'w'));
+    }
 	return gulp.src('src/**/*.js')
 		.pipe(gulpWebpack({
 			target: 'node',

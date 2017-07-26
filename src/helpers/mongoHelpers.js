@@ -2,7 +2,7 @@
 
 const Account = require('../models/account.mongoose');
 const constants = require('./constants');
-const logger = require('winston');
+const logger = require('../services/logger');
 const Profile = require('../models/profile.mongoose');
 
 
@@ -35,7 +35,7 @@ const createAccount = (params) => {
             if (err) {
                 reject({step: constants.mongo.steps.accountCreate, message: 'Error creating account', error: err });
             } else {
-                logger.info(`Successfully created acount for: ${params.email}`);
+                logger.info('mongooseHelpers', `Successfully created acount for: ${params.email}`);
                 resolve(result);
             }
         });
@@ -53,7 +53,7 @@ const removeAccount = (params) => {
             if (err) {
                 reject({step: constants.mongo.steps.accountDelete, message: 'Error deleting account', error: err });
             } else {
-                logger.info(`Successfully removed acount for: ${params.email}`);
+                logger.info('mongooseHelpers', `Successfully removed acount for: ${params.email}`);
                 resolve(result);
             }
         });
@@ -72,7 +72,7 @@ const createProfile = (params) => {
             if (err) {
                 reject({step: constants.mongo.steps.profileCreate, message: 'Error creating profile', error: err });
             } else {
-                logger.info(`Successfully created profile for: ${params.email}`);
+                logger.info('mongooseHelpers', `Successfully created profile for: ${params.email}`);
                 resolve(result);
             }
         });
