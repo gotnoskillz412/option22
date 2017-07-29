@@ -27,7 +27,7 @@ gulp.task('js', ['clean', 'lint'], () => {
         fs.mkdirSync('logs');
         fs.closeSync(fs.openSync('logs/log.txt', 'w'));
     }
-	return gulp.src('src/**/*.js')
+	return gulp.src(['src/**/*.js', '!src/**/*.spec.js'])
 		.pipe(gulpWebpack({
 			target: 'node',
 			externals: [nodeExternals()],
