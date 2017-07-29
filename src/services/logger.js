@@ -28,4 +28,9 @@ const logger = new winston.Logger({
 });
 logger.emitErrs = false;
 
+if (process.env.NODE_ENV === 'test') {
+    logger.remove(winston.transports.Console);
+    logger.remove(winston.transports.File);
+}
+
 exports = module.exports = logger;

@@ -21,16 +21,15 @@ router.get('/', function (req, res) {
 });
 
 // Put to update profile information
-router.put('/', function () {
-    // TODO have users update their profile information here
-});
-
-// Post to add/update a profile picture
-router.post('/picture', function (req, res) {
-    // TODO verify image type is a base64 string
+router.put('/:profileId', function (req, res) {
+    let updatedProfile = req.body.profile;
     mongoHelpers.findProfile({ username: req.decoded.data.username, email: req.decoded.data.email })
         .then((profile) => {
-            profile.picture = req.body.image;
+            Object.keys(updatedProfile).forEach((key) => {
+                if (profile[key] !== updatedProfile[key]) {
+                    profile[key] = updatedProfile[key];
+                }
+            });
             profile.save((err) => {
                 if (err) {
                     logger.error('profile', 'Error saving the profile picture', { error: err });

@@ -38,7 +38,7 @@ app.use(cors(corsOptions));
 app.use('/', routes.index);
 app.use('/auth', routes.auth);
 app.use('/email', routes.email);
-app.use('/profile', security(), routes.profile);
+app.use('/profiles', security(), routes.profile);
 
 mongoose.Promise = global.Promise;
 mongoose.connect(process.env.MONGO_URI);
