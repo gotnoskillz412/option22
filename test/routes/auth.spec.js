@@ -18,7 +18,7 @@ describe('Crypto Tests', function () {
     let profileCreated = false;
 
     const now = new Date().getTime();
-    const account = {
+    let account = {
         email: 'e2eUser@test.com_' + now,
         username: 'e2eUser_' + now,
         password: 'password0'
@@ -44,57 +44,72 @@ describe('Crypto Tests', function () {
     });
 
     describe('Auth Endpoints', () => {
-        it('should test the register happy path', (done) => {
-            chai.request(server)
-                .post('/auth/register')
-                .send(account)
-                .end((err, res) => {
-                    if (!err) {
-                        accountCreated = true;
-                        profileCreated = true;
-                    }
-                    expect(res.statusCode).to.eql(201);
-                    expect(res.body.token).to.not.be.null;
-                    expect(res.body.profile).to.not.be.null;
-                    expect(res.body.profile.username).to.eql(account.username.toLowerCase());
-                    expect(res.body.profile.email).to.eql(account.email.toLowerCase());
-                    done();
-                });
+        describe('Register endpoint', () => {
+            it('should test the register happy path', (done) => {
+                chai.request(server)
+                    .post('/auth/register')
+                    .send(account)
+                    .end((err, res) => {
+                        if (!err) {
+                            accountCreated = true;
+                            profileCreated = true;
+                        }
+                        expect(res.statusCode).to.eql(201);
+                        expect(res.body.token).to.not.be.null;
+                        expect(res.body.profile).to.not.be.null;
+                        expect(res.body.profile.username).to.eql(account.username.toLowerCase());
+                        expect(res.body.profile.email).to.eql(account.email.toLowerCase());
+                        done();
+                    });
+            });
+
+            it('should test the register fails with email already exists', (done) => {
+                chai.request(server)
+                    .post('/auth/register')
+                    .send(account)
+                    .end((err, res) => {
+                        expect(res.statusCode).to.eql(400);
+                        expect(res.body.message).to.eql('Account with that email already exists.');
+                        done();
+                    });
+            });
         });
 
-        it('should clean up the account', (done) => {
-            mongoHelpers.findAccount({ username: account.username.toLowerCase() }).then((act) => {
-                if (accountCreated) {
-                    expect(act).to.not.be.null;
-                }
-                return new Promise((resolve) => {
-                    if (act) {
-                        mongoHelpers.removeAccount({ username: account.username.toLowerCase() }).then(resolve);
-                    } else {
-                        resolve();
+        describe('Cleanup', () => {
+            it('should clean up the account', (done) => {
+                mongoHelpers.findAccount({ username: account.username.toLowerCase() }).then((act) => {
+                    if (accountCreated) {
+                        expect(act).to.not.be.null;
                     }
-                });
-            })
-                .then(() => {
-                    mongoHelpers.findProfile({ username: account.username.toLowerCase() }).then((profile) => {
-                        if (profile) {
-                            expect(profile).to.not.be.null;
+                    return new Promise((resolve) => {
+                        if (act) {
+                            mongoHelpers.removeAccount({ username: account.username.toLowerCase() }).then(resolve);
+                        } else {
+                            resolve();
                         }
-                        return new Promise((resolve) => {
-                            if (profile) {
-                                mongoHelpers.removeProfile({ username: account.username.toLowerCase() }).then(resolve);
-                            } else {
-                                resolve();
-                            }
-                        });
                     });
                 })
-                .then(() => {
-                    done();
-                })
-                .catch((err) => {
-                    done(err);
-                });
+                    .then(() => {
+                        mongoHelpers.findProfile({ username: account.username.toLowerCase() }).then((profile) => {
+                            if (profile) {
+                                expect(profile).to.not.be.null;
+                            }
+                            return new Promise((resolve) => {
+                                if (profile) {
+                                    mongoHelpers.removeProfile({ username: account.username.toLowerCase() }).then(resolve);
+                                } else {
+                                    resolve();
+                                }
+                            });
+                        });
+                    })
+                    .then(() => {
+                        done();
+                    })
+                    .catch((err) => {
+                        done(err);
+                    });
+            });
         });
     });
 });
