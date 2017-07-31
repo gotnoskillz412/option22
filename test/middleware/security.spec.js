@@ -2,12 +2,12 @@
 const expect = require('chai').expect;
 const sinon = require('sinon');
 
-const cache = require('../services/cache');
+const cache = require('../../src/services/cache');
 const jwt = require('jsonwebtoken');
 
-const security = require('./security');
+const security = require('../../src/middleware/security');
 
-describe('Security Middleware', () => {
+describe('Security Middleware', function () {
     let req;
     let res;
     let sec;

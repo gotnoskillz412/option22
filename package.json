@@ -4,7 +4,7 @@
   "main": "lib/app.js",
   "scripts": {
     "start": "node ./src/app.js",
-    "test": "NODE_ENV=test istanbul cover _mocha $(find ./src -name \"*.spec.js\" -not -path \"./node_modules/*\")"
+    "test": "NODE_ENV=test istanbul cover _mocha $(find ./test -name \"*.spec.js\" -not -path \"./node_modules/*\")"
   },
   "repository": {
     "type": "git",

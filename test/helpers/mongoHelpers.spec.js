@@ -2,12 +2,12 @@
 const expect = require('chai').expect;
 const sinon = require('sinon');
 
-const Account = require('../models/account.mongoose');
-const Profile = require('../models/profile.mongoose');
+const Account = require('../../src/models/account.mongoose');
+const Profile = require('../../src/models/profile.mongoose');
 
-const mongoHelpers = require('./mongoHelpers');
+const mongoHelpers = require('../../src/helpers/mongoHelpers');
 
-describe('Mongo Helpers', () => {
+describe('Mongo Helpers', function () {
     beforeEach(() => {
         this.sandbox = sinon.sandbox.create()
     });
