@@ -2,9 +2,9 @@
 
 const jwt = require('jsonwebtoken');
 
-const cache = require('../services/cache');
+const cache = require('../utilities/cache');
 const constants = require('../helpers/constants');
-const logger = require('../services/logger');
+const logger = require('../utilities/logger');
 
 /**
  * @name security

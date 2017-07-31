@@ -4,7 +4,7 @@ instrumentation:
     extensions:
         - .js
     default-excludes: true
-    excludes: ["**/dist/**", "**/src/*.js", "*.js"]
+    excludes: ["**/dist/**", "**/src/*.js", "*.js", "**/src/utilities/**/*.js"]
     embed-source: false
     variable: __coverage__
     compact: true
@@ -21,7 +21,7 @@ reporting:
         - lcov
     dir: ./coverage
     watermarks:
-        statements: [50, 80]
+        statements: [75, 80]
         lines: [50, 80]
         functions: [50, 80]
         branches: [50, 80]

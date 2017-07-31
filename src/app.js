@@ -7,7 +7,7 @@ const express = require('express');
 const expressSession = require('express-session');
 const mongoose = require('mongoose');
 
-const logger = require('./services/logger');
+const logger = require('./utilities/logger');
 const routes = require('./routes/routes');
 const security = require('./middleware/security');
 

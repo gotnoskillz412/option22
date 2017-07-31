@@ -3,7 +3,7 @@
 const express = require('express');
 const nodemailer = require('nodemailer');
 
-const logger = require('../services/logger');
+const logger = require('../utilities/logger');
 
 const router = express.Router();
 

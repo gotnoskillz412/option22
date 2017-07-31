@@ -2,7 +2,7 @@
 
 const Account = require('../models/account.mongoose');
 const constants = require('./constants');
-const logger = require('../services/logger');
+const logger = require('../utilities/logger');
 const Profile = require('../models/profile.mongoose');
 
 

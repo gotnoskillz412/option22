@@ -3,10 +3,10 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 
-const cache = require('../services/cache');
+const cache = require('../utilities/cache');
 const constants = require('../helpers/constants');
 const crypto = require('../services/crypto');
-const logger = require('../services/logger');
+const logger = require('../utilities/logger');
 const mongoHelpers = require('../helpers/mongoHelpers');
 const security = require('../middleware/security');
 

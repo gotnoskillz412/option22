@@ -2,7 +2,7 @@
 const expect = require('chai').expect;
 const sinon = require('sinon');
 
-const cache = require('../../src/services/cache');
+const cache = require('../../src/utilities/cache');
 const jwt = require('jsonwebtoken');
 
 const security = require('../../src/middleware/security');

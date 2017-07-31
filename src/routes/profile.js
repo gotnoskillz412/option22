@@ -2,7 +2,7 @@
 
 const express = require('express');
 
-const logger = require('../services/logger');
+const logger = require('../utilities/logger');
 const mongoHelpers = require('../helpers/mongoHelpers');
 
 const router = new express.Router();
