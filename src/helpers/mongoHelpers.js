@@ -106,10 +106,31 @@ const findProfile = (params) => {
     });
 };
 
+/**
+ * @name removeProfile
+ * @methodOf mongoHelpers
+ * @description A wrapper around the mongoose remove method in order to use promises.  Removes a profile based on provided params.
+ * @param {object} params - The parameters used to find the profile to be removed
+ * @returns {Promise} - Resolves with the removed profile
+ */
+const removeProfile = (params) => {
+    return new Promise(function (resolve, reject) {
+        Profile.remove(params, (err, result) => {
+            if (err) {
+                reject({step: constants.mongo.steps.profileDelete, message: 'Error deleting profile', error: err });
+            } else {
+                logger.info('mongooseHelpers', `Successfully removed profile for: ${params.email}`);
+                resolve(result);
+            }
+        });
+    });
+};
+
 exports = module.exports = {
     findAccount: findAccount,
     createAccount: createAccount,
     removeAccount: removeAccount,
     createProfile: createProfile,
-    findProfile: findProfile
+    findProfile: findProfile,
+    removeProfile: removeProfile
 };
