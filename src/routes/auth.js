@@ -14,7 +14,7 @@ const router = express.Router();
 
 // Registration endpoint for new accounts and profiles
 router.post('/register', function (req, res) {
-    // TODO check to make sure that the username and email are valid
+    // TODO check to make sure that the username and email are valid formats
     let username = req.body.username.toLowerCase();
     let email = req.body.email.toLowerCase();
 
@@ -125,9 +125,9 @@ router.get('/logout', security(), function (req, res) {
             }, 3600000);
         }
         if (req.query.redirect_uri) {
-            res.redirect(req.query.redirect_uri, {});
+            res.redirect(302, req.query.redirect_uri);
         } else {
-            res.status(200).send('ok');
+            res.status(200).json({ok: true});
         }
     });
 });

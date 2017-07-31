@@ -16,7 +16,7 @@ describe('Mongo Helpers', function () {
         this.sandbox.restore()
     });
 
-    it('should test the findAccount method (found)', (done) => {
+    it('should test the findAccount method (success)', (done) => {
         const findOneStub = this.sandbox.stub(Account, 'findOne').callsFake((params, cb) => {
             cb(null, 'success');
         });
@@ -27,7 +27,7 @@ describe('Mongo Helpers', function () {
         }, done);
     });
 
-    it('should test the findAccount method (not found)', (done) => {
+    it('should test the findAccount method (failed)', (done) => {
         const findOneStub = this.sandbox.stub(Account, 'findOne').callsFake((params, cb) => {
             cb('err', null);
         });
@@ -117,7 +117,7 @@ describe('Mongo Helpers', function () {
         });
     });
 
-    it('should test the findProfile method (found)', (done) => {
+    it('should test the findProfile method (success)', (done) => {
         const findOneStub = this.sandbox.stub(Profile, 'findOne').callsFake((params, cb) => {
             cb(null, 'success');
         });
@@ -128,7 +128,7 @@ describe('Mongo Helpers', function () {
         }, done);
     });
 
-    it('should test the findProfile method (not found)', (done) => {
+    it('should test the findProfile method (failed)', (done) => {
         const findOneStub = this.sandbox.stub(Profile, 'findOne').callsFake((params, cb) => {
             cb('err', null);
         });
@@ -136,6 +136,30 @@ describe('Mongo Helpers', function () {
             expect(findOneStub.calledOnce).to.eql(true, `Expected 'findOneStub' to be called once`);
             expect(result.step).to.eql(constants.mongo.steps.profileFind, `Expected '${result.step}' to be '${constants.mongo.steps.profileFind}'`);
             expect(result.message).to.eql('Error finding profile', `Expected '${result.message}' to be 'Error finding profile'`);
+            expect(result.error).to.eql('err', `Expected '${result.message}' to be 'err'`);
+            done();
+        });
+    });
+
+    it('should test the removeProfile method (success)', (done) => {
+        const removeStub = this.sandbox.stub(Profile, 'remove').callsFake((params, cb) => {
+            cb(null, 'success');
+        });
+        mongoHelpers.removeProfile({}).then((result) => {
+            expect(removeStub.calledOnce).to.eql(true, `Expected 'removeStub' to be called once`);
+            expect(result).to.eql('success', `Expected '${result}' to be 'success'`);
+            done();
+        }, done);
+    });
+
+    it('should test the removeProfile method (failed)', (done) => {
+        const removeStub = this.sandbox.stub(Profile, 'remove').callsFake((params, cb) => {
+            cb('err', null);
+        });
+        mongoHelpers.removeProfile({}).then(done, (result) => {
+            expect(removeStub.calledOnce).to.eql(true, `Expected 'removeStub' to be called once`);
+            expect(result.step).to.eql(constants.mongo.steps.profileDelete, `Expected '${result.step}' to be '${constants.mongo.steps.profileDelete}'`);
+            expect(result.message).to.eql('Error deleting profile', `Expected '${result.message}' to be 'Error deleting profile'`);
             expect(result.error).to.eql('err', `Expected '${result.message}' to be 'err'`);
             done();
         });
