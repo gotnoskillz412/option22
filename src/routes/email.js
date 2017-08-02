@@ -6,6 +6,7 @@ const nodemailer = require('nodemailer');
 const logger = require('../utilities/logger');
 
 const router = express.Router();
+let response;
 
 // Create the email transport
 const smtpTransport = nodemailer.createTransport({
@@ -51,16 +52,19 @@ const sendMail = (name, fromAddress, subject, content, next) => {
 const afterSend = (error) => {
     if (error) {
         logger.error('email', 'Error sending email', { error: error });
-        res.status(500).json({ message: 'Unable to send email at this time.' });
+        response.status(500).json({ message: 'Unable to send email at this time.' });
     } else {
         logger.info('email', 'Email sent successfully');
-        res.status(201).json({ message: 'Email sent successfully' });
+        response.status(201).json({ message: 'Email sent successfully' });
     }
 };
 
 router.post('/', (req, res) => {
+    // TODO verify this is comming from the app site
+    response = null;
     if (req.body.email && req.body.name && req.body.subject && req.body.message) {
         let content = `<p>${req.body.message}</p>`;
+        response = res;
         sendMail(req.body.name, req.body.email, req.body.subject, content, afterSend);
     } else {
         res.status(400).json({ message: 'Invalid email format' });
