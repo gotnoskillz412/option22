@@ -92,8 +92,17 @@ describe('Profile Tests', function () {
                 });
         });
 
-        it('should test a 404 to when getting the profile', (done) => {
+        it('should test a 404 to when getting the profile with malformed profileId', (done) => {
             context.client.get(config.urls.detail, {accountId: account._id, profileId: 'blah'})
+                .then(done)
+                .catch((err) => {
+                    expect(err.status).to.eql(404);
+                    done();
+                });
+        });
+
+        it('should test a 404 to when getting the profile with good profileId', (done) => {
+            context.client.get(config.urls.detail, {accountId: account._id, profileId: 'aaaaaaaaaaaaaaaaaaaaaaaa'})
                 .then(done)
                 .catch((err) => {
                     expect(err.status).to.eql(404);
