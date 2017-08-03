@@ -88,6 +88,25 @@ const createProfile = (params) => {
 };
 
 /**
+ * @name findAllProfiles
+ * @methodOf mongoHelpers
+ * @description A wrapper around the mongoose find method in order to use promises.  Finds all profiles based on provided params.
+ * @param {object} params - Parameters used to find the profiles
+ * @returns {Promise} - Resolves with an array of the profiles
+ */
+const findAllProfiles = (params) => {
+    return new Promise(function (resolve, reject) {
+        Profile.find(params, (err, result) => {
+            if (err) {
+                reject({step: constants.mongo.steps.profileFind, message: 'Error finding profiles', error: err });
+            } else {
+                resolve(result);
+            }
+        });
+    });
+};
+
+/**
  * @name findProfile
  * @methodOf mongoHelpers
  * @description A wrapper around the mongoose findOne method in order to use promises.  Finds a profile based on provided params.
@@ -132,5 +151,6 @@ exports = module.exports = {
     removeAccount: removeAccount,
     createProfile: createProfile,
     findProfile: findProfile,
+    findAllProfiles: findAllProfiles,
     removeProfile: removeProfile
 };

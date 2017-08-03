@@ -62,22 +62,26 @@ describe('Auth Tests', function () {
         it('should test the happy path', (done) => {
             context.client.post('/auth/login', {
                 username: account.username,
-                password: account.password
+                password: 'password0'
             }).then((res) => {
                 expect(res.statusCode).to.eql(201);
                 expect(res.body.token).to.not.be.null;
+                expect(res.body.account).to.not.be.null;
+                expect(res.body.token).to.not.be.null;
+                expect(res.body.account.username).to.eql(account.username.toLowerCase());
+                expect(res.body.account.email).to.eql(account.email.toLowerCase());
                 expect(res.body.profile).to.not.be.null;
-                expect(res.body.profile.username).to.eql(account.username.toLowerCase());
-                expect(res.body.profile.email).to.eql(account.email.toLowerCase());
+                expect(res.body.profile.accountId).to.eql(res.body.account._id);
                 done();
-            }).catch(done);
+            }).catch((err) => {
+                done(err);
+            });
         });
 
         it('should test the incorrect password', (done) => {
-            account.password = 'blah';
             context.client.post('/auth/login', {
                 username: account.username,
-                password: account.password
+                password: 'blah'
             }).catch((err) => {
                 expect(err.status).to.eql(401);
                 expect(err.response.res.body.message).to.eql('Incorrect username or password');

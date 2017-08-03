@@ -17,6 +17,7 @@ router.post('/register', function (req, res) {
     // TODO check to make sure that the username and email are valid formats
     let username = req.body.username.toLowerCase();
     let email = req.body.email.toLowerCase();
+    let account = null;
 
     // first check for if a user exists already
     mongoHelpers.findAccount({ email: email })
@@ -50,8 +51,9 @@ router.post('/register', function (req, res) {
                 error: null
             });
         })
-        .then(() => {
-            return mongoHelpers.createProfile({ username: username, email: email });
+        .then((act) => {
+            account = act;
+            return mongoHelpers.createProfile({ accountId: act._id });
         })
         .then((profile) => {
             let token = jwt.sign({
@@ -61,7 +63,7 @@ router.post('/register', function (req, res) {
                     email: email
                 }
             }, process.env.MY_SECRET);
-            res.status(201).json({ token: token, profile: profile });
+            res.status(201).json({ token: token, profile: profile, account: account });
         })
         .catch((err) => {
             if (err.step === constants.mongo.steps.profileCreate) {
@@ -82,10 +84,12 @@ router.post('/login', (req, res) => {
     // Check credentials and then provide token
     let username = req.body.username && req.body.username.toLowerCase();
     let password = req.body.password;
+    let account = null;
     mongoHelpers.findAccount({ username: username })
-        .then((account) => {
-            if (!!account && crypto.verifyPassword(password, account.salt, account.hash)) {
-                mongoHelpers.findProfile({ username: username }).then((profile) => {
+        .then((act) => {
+            if (act && crypto.verifyPassword(password, act.salt, act.hash)) {
+                account = act;
+                mongoHelpers.findProfile({ accountId: account._id }).then((profile) => {
                     let token = jwt.sign({
                         exp: Math.floor(Date.now() / 1000) + 3600,
                         data: {
@@ -94,7 +98,7 @@ router.post('/login', (req, res) => {
                         }
                     }, process.env.MY_SECRET);
                     logger.verbose('auth', 'Login successful', { email: account.email });
-                    res.status(201).json({ token: token, profile: profile });
+                    res.status(201).json({ token: token, profile: profile, account: account });
                 });
             } else {
                 res.status(401).json({ message: 'Incorrect username or password' });
@@ -127,7 +131,7 @@ router.get('/logout', security(), function (req, res) {
         if (req.query.redirect_uri) {
             res.redirect(302, req.query.redirect_uri);
         } else {
-            res.status(200).json({ok: true});
+            res.status(200).json({ ok: true });
         }
     });
 });

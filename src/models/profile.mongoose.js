@@ -9,8 +9,7 @@ const Profile = new Schema({
     picture: String,
     description: String,
     likes: [String],
-    email: String,
-    username: String
+    accountId: Schema.Types.ObjectId
 });
 
 exports = module.exports = mongoose.model('Profile', Profile);

@@ -7,6 +7,7 @@ const express = require('express');
 const expressSession = require('express-session');
 const mongoose = require('mongoose');
 
+const accountExtractor = require('./middleware/accountExtractor');
 const logger = require('./utilities/logger');
 const routes = require('./routes/routes');
 const security = require('./middleware/security');
@@ -38,7 +39,7 @@ app.use(cors(corsOptions));
 app.use('/', routes.index);
 app.use('/auth', routes.auth);
 app.use('/email', routes.email);
-app.use('/profiles', security(), routes.profile);
+app.use('/accounts/:accountId/profiles', security(), accountExtractor(), routes.profile);
 
 mongoose.Promise = global.Promise;
 mongoose.connect(process.env.MONGO_URI);

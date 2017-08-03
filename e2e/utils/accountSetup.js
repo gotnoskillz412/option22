@@ -15,6 +15,7 @@ const AccountSetup = function () {
     this.profile = null;
     this.client = null;
     this.account = null;
+    this.profile = null;
 };
 
 AccountSetup.defaultOptions = () => {
@@ -125,8 +126,7 @@ AccountSetup.prototype.getContext = function () {
                 });
             }
         },
-        account: this.account,
-        profile: this.profile
+        account: this.account
     }
 };
 
@@ -140,12 +140,14 @@ AccountSetup.prototype.createAccount = function (options) {
                 if (!err) {
                     expect(res.statusCode).to.eql(201);
                     expect(res.body.token).to.not.be.null;
+                    expect(res.body.account).to.not.be.null;
+                    expect(res.body.account.username).to.eql(options.account.username.toLowerCase());
+                    expect(res.body.account.email).to.eql(options.account.email.toLowerCase());
                     expect(res.body.profile).to.not.be.null;
-                    expect(res.body.profile.username).to.eql(options.account.username.toLowerCase());
-                    expect(res.body.profile.email).to.eql(options.account.email.toLowerCase());
-                    this.token = res.body.token;
+                    expect(res.body.profile.accountId).to.eql(res.body.account._id);
                     this.profile = res.body.profile;
-                    this.account = options.account;
+                    this.token = res.body.token;
+                    this.account = res.body.account;
                     resolve(this.getContext());
                 } else {
                     reject();
