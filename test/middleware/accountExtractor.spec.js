@@ -51,7 +51,7 @@ describe('Account Extractor Middleware', function () {
                         _id: 'success'
                     });
                     return {
-                        'catch': (errorCb) => {
+                        'catch': () => {
                             //do nothing
                         }
                     };
@@ -85,7 +85,7 @@ describe('Account Extractor Middleware', function () {
                         _id: 'success'
                     });
                     return {
-                        'catch': (errorCb) => {
+                        'catch': () => {
                             //do nothing
                         }
                     };
@@ -123,7 +123,7 @@ describe('Account Extractor Middleware', function () {
                 then: (cb) => {
                     cb(null);
                     return {
-                        'catch': (errorCb) => {
+                        'catch': () => {
                             //do nothing
                         }
                     };

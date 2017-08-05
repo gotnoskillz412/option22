@@ -15,7 +15,7 @@ gulp.task('clean', () => {
 
 // Run linter on javascript
 gulp.task('lint', ['clean'], () => {
-	return gulp.src(['**/*.js','!node_modules/**', '!gulpfile.js'])
+	return gulp.src(['**/*.js','!node_modules/**', '!gulpfile.js', '!coverage/**', '!logs/**'])
 		.pipe(eslint())
 		.pipe(eslint.format())
 		.pipe(eslint.failAfterError());

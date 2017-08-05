@@ -32,6 +32,9 @@ describe('Email Tests', function () {
                     message: 'test_message'
                 })
                 .end((err, res) => {
+                    if (err) {
+                        done(err);
+                    }
                     expect(res.statusCode).to.eql(201);
                     expect(res.body.message).to.eql('Email sent successfully');
                     done();
@@ -46,7 +49,7 @@ describe('Email Tests', function () {
                     name: 'test_name',
                     subject: 'test_subject'
                 })
-                .end((err, res) => {
+                .end((err, res) => { // eslint-disable-line handle-callback-err
                     expect(res.statusCode).to.eql(400);
                     expect(res.body.message).to.eql('Invalid email format');
                     done();
@@ -65,7 +68,7 @@ describe('Email Tests', function () {
                     subject: 'test_subject',
                     message: 'test_message'
                 })
-                .end((err, res) => {
+                .end((err, res) => { // eslint-disable-line handle-callback-err
                     expect(res.statusCode).to.eql(500);
                     expect(res.body.message).to.eql('Unable to send email at this time.');
                     done();

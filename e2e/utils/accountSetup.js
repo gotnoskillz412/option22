@@ -2,7 +2,6 @@
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 const expect = require('chai').expect;
-const path = require('path');
 const querystring = require('querystring');
 
 const mongoHelpers = require('../../src/helpers/mongoHelpers');
@@ -161,17 +160,15 @@ AccountSetup.prototype.removeAccount = function () {
         return mongoHelpers.findAccount({ username: this.account.username.toLowerCase() }).then((act) => {
             if (act) {
                 return mongoHelpers.removeAccount({ username: this.account.username.toLowerCase() });
-            } else {
-                return Promise.resolve();
             }
+            return Promise.resolve();
         })
             .then(() => {
                 return mongoHelpers.findProfile({ username: this.account.username.toLowerCase() }).then((profile) => {
                     if (profile) {
                         return mongoHelpers.removeProfile({ username: this.account.username.toLowerCase() });
-                    } else {
-                        return Promise.resolve();
                     }
+                    return Promise.resolve();
                 });
             });
     }

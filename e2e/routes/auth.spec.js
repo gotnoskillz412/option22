@@ -2,10 +2,8 @@
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 const expect = require('chai').expect;
-const sinon = require('sinon');
 
 const AccountSetup = require('../utils/accountSetup');
-const cache = require('../../src/utilities/cache');
 const server = require('../../src/app');
 
 chai.use(chaiHttp);
@@ -38,7 +36,7 @@ describe('Auth Tests', function () {
             chai.request(server)
                 .post('/auth/register')
                 .send(account)
-                .end((err, res) => {
+                .end((err, res) => { // eslint-disable-line handle-callback-err
                     expect(res.statusCode).to.eql(400);
                     expect(res.body.message).to.eql('Account with that email already exists.');
                     done();
@@ -50,7 +48,7 @@ describe('Auth Tests', function () {
             chai.request(server)
                 .post('/auth/register')
                 .send(account)
-                .end((err, res) => {
+                .end((err, res) => { // eslint-disable-line handle-callback-err
                     expect(res.statusCode).to.eql(400);
                     expect(res.body.message).to.eql('Account with that username already exists.');
                     done();
@@ -101,11 +99,9 @@ describe('Auth Tests', function () {
         });
 
         it('should test the happy path (with redirect)', (done) => {
-            let newContext = null;
             let newAccount = new AccountSetup();
             newAccount.createAccount()
                 .then((context) => {
-                    newContext = context;
                     context.client.get('/auth/logout', { 'redirect_uri': 'test.com' })
                         .catch((err) => {  // for some reason, chai-http sees redirects as failures. lame
                             expect(err.status).to.eql(302);

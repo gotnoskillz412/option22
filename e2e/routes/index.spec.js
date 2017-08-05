@@ -2,7 +2,6 @@
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 const expect = require('chai').expect;
-const sinon = require('sinon');
 
 const server = require('../../src/app');
 
@@ -14,6 +13,9 @@ describe('Index Tests', function () {
             chai.request(server)
                 .get('/')
                 .end((err, res) => {
+                    if (err) {
+                        done(err);
+                    }
                     expect(res.statusCode).to.eql(200);
                     expect(res.body.ok).to.eql(true);
                     done();

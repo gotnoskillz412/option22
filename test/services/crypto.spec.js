@@ -62,7 +62,7 @@ describe('Crypto Tests', function () {
 
         const result = crypto.verifyPassword('test_password', 'test', 'hash_success');
         expect(result).to.eql(true, `Expected ${result} to be true`);
-        expect(createHmacStub.calledOnce).to.eql(true, `Expected createHmacStub to be called once`);
+        expect(createHmacStub.calledOnce).to.eql(true, 'Expected "createHmacStub" to be called once');
         expect(password).to.eql('test_password', `Expected ${password} to be 'test_password`);
         done();
     });
