@@ -88,6 +88,18 @@ describe('Auth Tests', function () {
         });
     });
 
+    describe('Get Account endpoints', () => {
+        it('should test the happy path', (done) => {
+            context.client.get('/auth/account')
+                .then((res) => {
+                    expect(res.statusCode).to.eql(200);
+                    expect(res.body.profile).to.not.be.null;
+                    expect(res.body.account).to.not.be.null;
+                    done();
+                }).catch(done);
+        });
+    });
+
     describe('Logout endpoints', () => {
         it('should test the happy path', (done) => {
             context.client.get('/auth/logout')

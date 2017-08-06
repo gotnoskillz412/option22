@@ -63,7 +63,11 @@ router.post('/register', function (req, res) {
                     email: email
                 }
             }, process.env.MY_SECRET);
-            res.status(201).json({ token: token, profile: profile, account: account });
+            res.status(201).json({
+                token: token,
+                profile: profile,
+                account: { email: account.email, username: account.username, _id: account._id }
+            });
         })
         .catch((err) => {
             if (err.step === constants.mongo.steps.profileCreate) {
@@ -87,7 +91,9 @@ router.post('/login', (req, res) => {
     let account = null;
     mongoHelpers.findAccount({ username: username })
         .then((act) => {
-            if (act && crypto.verifyPassword(password, act.salt, act.hash)) {
+            if (!(act && crypto.verifyPassword(password, act.salt, act.hash))) {
+                res.status(401).json({ message: 'Incorrect username or password' });
+            } else {
                 account = act;
                 mongoHelpers.findProfile({ accountId: account._id }).then((profile) => {
                     let token = jwt.sign({
@@ -98,10 +104,39 @@ router.post('/login', (req, res) => {
                         }
                     }, process.env.MY_SECRET);
                     logger.verbose('auth', 'Login successful', { email: account.email });
-                    res.status(201).json({ token: token, profile: profile, account: account });
+                    res.status(201).json({
+                        token: token,
+                        profile: profile,
+                        account: { email: account.email, username: account.username, _id: account._id }
+                    });
                 });
+            }
+        })
+        .catch((err) => {
+            if (!err.error) {
+                res.status(400).json({ message: err.message });
             } else {
-                res.status(401).json({ message: 'Incorrect username or password' });
+                logger.error('auth', err.message, { error: err.error, step: err.step });
+                res.status(500).json({ message: err.message });
+            }
+        });
+});
+
+// Get Account Info for logged in users
+router.get('/account', security(), (req, res) => {
+    mongoHelpers.findAccount({username: req.decoded.data.username})
+        .then((act) => {
+            if (!act) {
+                res.status(500).json({message: 'Failed to find account'});
+            } else {
+                mongoHelpers.findProfile({accountId: act._id})
+                    .then((profile) => {
+                        if (!profile) {
+                            res.status(500).json({message: 'Failed to find profile'});
+                        } else {
+                            res.status(200).json({account: {email: act.email, username: act.username, _id: act._id}, profile: profile});
+                        }
+                    })
             }
         })
         .catch((err) => {
