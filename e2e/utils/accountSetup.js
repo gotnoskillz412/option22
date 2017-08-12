@@ -24,7 +24,7 @@ AccountSetup.defaultOptions = () => {
         account: {
             email: `e2eUser@test.com_${now}_${random}`,
             username: `e2eUser_${now}_${random}`,
-            password: 'password0'
+            password: 'Password0'
         }
     }
 };
@@ -136,6 +136,7 @@ AccountSetup.prototype.createAccount = function (options) {
             .post('/auth/register')
             .send(options.account)
             .end((err, res) => {
+            console.log(err);
                 if (!err) {
                     expect(res.statusCode).to.eql(201);
                     expect(res.body.token).to.not.be.null;
@@ -149,7 +150,7 @@ AccountSetup.prototype.createAccount = function (options) {
                     this.account = res.body.account;
                     resolve(this.getContext());
                 } else {
-                    reject();
+                    reject(err);
                 }
             });
     })
@@ -172,7 +173,7 @@ AccountSetup.prototype.removeAccount = function () {
                 });
             });
     }
-    return Promise.reject();
+    return Promise.reject('Problem removing account.');
 };
 
 module.exports = AccountSetup;

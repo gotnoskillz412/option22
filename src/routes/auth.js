@@ -15,6 +15,8 @@ const router = express.Router();
 // Registration endpoint for new accounts and profiles
 router.post('/register', function (req, res) {
     // TODO check to make sure that the username and email are valid formats
+    const passwordRegex = new RegExp('(?=^.{8,}$)((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$');
+    const usernameRegex = new RegExp('^([a-zA-Z0-9_]{5,50})$');
     let username = req.body.username.toLowerCase();
     let email = req.body.email.toLowerCase();
     let account = null;
@@ -33,8 +35,18 @@ router.post('/register', function (req, res) {
         })
         .then((account) => {
             if (!account) {
-                // TODO Check to make sure password meets constraints
                 let password = req.body.password;
+                if (!password.match(passwordRegex)) {
+                    return Promise.reject({
+                        step: constants.mongo.steps.accountCreate,
+                        message: 'Password did not meet requirements.'
+                    });
+                } else if (!username.match(usernameRegex)) {
+                    return Promise.reject({
+                        step: constants.mongo.steps.accountCreate,
+                        message: 'Username must be alphanumeric and between 5 and 50 characters.'
+                    });
+                }
 
                 let creds = crypto.generateSaltAndHash(password);
 

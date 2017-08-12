@@ -54,13 +54,41 @@ describe('Auth Tests', function () {
                     done();
                 });
         });
+
+        it('should test the register fails with username not meeting requirements', (done) => {
+            account.email = `${new Date().getTime()}_test@test.com`;
+            account.password = 'Password0';
+            account.username = 'test'; // not long enough
+            chai.request(server)
+                .post('/auth/register')
+                .send(account)
+                .end((err, res) => { // eslint-disable-line handle-callback-err
+                    expect(res.statusCode).to.eql(400);
+                    expect(res.body.message).to.eql('Username must be alphanumeric and between 5 and 50 characters.');
+                    done();
+                });
+        });
+
+        it('should test the register fails the password not meeting requirments', (done) => {
+            account.email = `${new Date().getTime()}_test@test.com`;
+            account.username = 'testWorks';
+            account.password = 'short';
+            chai.request(server)
+                .post('/auth/register')
+                .send(account)
+                .end((err, res) => { // eslint-disable-line handle-callback-err
+                    expect(res.statusCode).to.eql(400);
+                    expect(res.body.message).to.eql('Password did not meet requirements.');
+                    done();
+                });
+        });
     });
 
     describe('Login endpoints', () => {
         it('should test the happy path', (done) => {
             context.client.post('/auth/login', {
                 username: account.username,
-                password: 'password0'
+                password: 'Password0'
             }).then((res) => {
                 expect(res.statusCode).to.eql(201);
                 expect(res.body.token).to.not.be.null;
