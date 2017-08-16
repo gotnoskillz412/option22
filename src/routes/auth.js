@@ -14,9 +14,10 @@ const router = express.Router();
 
 // Registration endpoint for new accounts and profiles
 router.post('/register', function (req, res) {
-    // TODO check to make sure that the username and email are valid formats
     const passwordRegex = new RegExp('(?=^.{8,}$)((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$');
     const usernameRegex = new RegExp('^([a-zA-Z0-9_]{5,50})$');
+    let firstName = req.body.firstName || null;
+    let lastName = req.body.lastName || null;
     let username = req.body.username.toLowerCase();
     let email = req.body.email.toLowerCase();
     let account = null;
@@ -65,7 +66,7 @@ router.post('/register', function (req, res) {
         })
         .then((act) => {
             account = act;
-            return mongoHelpers.createProfile({ accountId: act._id });
+            return mongoHelpers.createProfile({ accountId: act._id, firstName: firstName, lastName: lastName });
         })
         .then((profile) => {
             let token = jwt.sign({
@@ -136,17 +137,20 @@ router.post('/login', (req, res) => {
 
 // Get Account Info for logged in users
 router.get('/account', security(), (req, res) => {
-    mongoHelpers.findAccount({username: req.decoded.data.username})
+    mongoHelpers.findAccount({ username: req.decoded.data.username })
         .then((act) => {
             if (!act) {
-                res.status(500).json({message: 'Failed to find account'});
+                res.status(500).json({ message: 'Failed to find account' });
             } else {
-                mongoHelpers.findProfile({accountId: act._id})
+                mongoHelpers.findProfile({ accountId: act._id })
                     .then((profile) => {
                         if (!profile) {
-                            res.status(500).json({message: 'Failed to find profile'});
+                            res.status(500).json({ message: 'Failed to find profile' });
                         } else {
-                            res.status(200).json({account: {email: act.email, username: act.username, _id: act._id}, profile: profile});
+                            res.status(200).json({
+                                account: { email: act.email, username: act.username, _id: act._id },
+                                profile: profile
+                            });
                         }
                     })
             }

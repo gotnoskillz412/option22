@@ -6,10 +6,12 @@ const Schema = mongoose.Schema;
 
 // Create the mongoose schema for a new user.
 const Profile = new Schema({
-    picture: String,
+    accountId: Schema.Types.ObjectId,
     description: String,
+    firstName: String,
+    lastName: String,
     likes: [String],
-    accountId: Schema.Types.ObjectId
+    picture: String
 });
 
 exports = module.exports = mongoose.model('Profile', Profile);

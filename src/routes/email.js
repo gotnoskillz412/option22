@@ -60,7 +60,6 @@ const afterSend = (error) => {
 };
 
 router.post('/', (req, res) => {
-    // TODO verify this is comming from the app site
     response = null;
     if (req.body.email && req.body.name && req.body.subject && req.body.message) {
         let content = `<p>${req.body.message}</p>`;

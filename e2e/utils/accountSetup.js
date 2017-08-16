@@ -19,12 +19,14 @@ const AccountSetup = function () {
 
 AccountSetup.defaultOptions = () => {
     const now = new Date().getTime();
-    const random = Math.floor(Math.random()*10000);
+    const random = Math.floor(Math.random() * 10000);
     return {
-        account: {
+        payload: {
             email: `e2eUser@test.com_${now}_${random}`,
             username: `e2eUser_${now}_${random}`,
-            password: 'Password0'
+            password: 'Password0',
+            firstName: 'e2eFirstName',
+            lastName: 'e2eLastName'
         }
     }
 };
@@ -36,7 +38,7 @@ AccountSetup.addParameters = function (url, query) {
     let temp = JSON.parse(JSON.stringify(query));
     let pathArray = url.split('/');
     pathArray = pathArray.map((value) => {
-        if (value[0] === ':' && query[value.substring(1)] ) {
+        if (value[0] === ':' && query[value.substring(1)]) {
             delete temp[value.substring(1)];
             return query[value.substring(1)];
         }
@@ -134,17 +136,18 @@ AccountSetup.prototype.createAccount = function (options) {
     return new Promise((resolve, reject) => {
         chai.request(server)
             .post('/auth/register')
-            .send(options.account)
+            .send(options.payload)
             .end((err, res) => {
-            console.log(err);
                 if (!err) {
                     expect(res.statusCode).to.eql(201);
                     expect(res.body.token).to.not.be.null;
                     expect(res.body.account).to.not.be.null;
-                    expect(res.body.account.username).to.eql(options.account.username.toLowerCase());
-                    expect(res.body.account.email).to.eql(options.account.email.toLowerCase());
+                    expect(res.body.account.username).to.eql(options.payload.username.toLowerCase());
+                    expect(res.body.account.email).to.eql(options.payload.email.toLowerCase());
                     expect(res.body.profile).to.not.be.null;
                     expect(res.body.profile.accountId).to.eql(res.body.account._id);
+                    expect(res.body.profile.firstName).to.eql(options.payload.firstName);
+                    expect(res.body.profile.lastName).to.eql(options.payload.lastName);
                     this.profile = res.body.profile;
                     this.token = res.body.token;
                     this.account = res.body.account;
@@ -153,7 +156,7 @@ AccountSetup.prototype.createAccount = function (options) {
                     reject(err);
                 }
             });
-    })
+    });
 };
 
 AccountSetup.prototype.removeAccount = function () {
