@@ -128,6 +128,38 @@ describe('Auth Tests', function () {
         });
     });
 
+    describe('Update Password endpoint', () => {
+        it('should test successfully updated password', (done) => {
+            context.client.put('/auth/account/:accountId/password', {
+                currentPassword: 'Password0',
+                newPassword: 'Password1'
+            }, {
+                accountId: account._id
+            })
+                .then((res) => {
+                    expect(res.statusCode).to.eql(200);
+                    expect(res.body.username).to.eql(account.username);
+                    expect(res.body.email).to.eql(account.email);
+                    done()
+                }).catch(done);
+        });
+
+        it('should test trying to update password with wrong current password', (done) => {
+            context.client.put('/auth/account/:accountId/password', {
+                currentPassword: 'Password5',
+                newPassword: 'Password2'
+            }, {
+                accountId: account._id
+            })
+                .then(done)
+                .catch((err) => {
+                    expect(err.status).to.eql(400);
+                    expect(err.response.res.body.message).to.eql('Incorrect password');
+                    done()
+                });
+        });
+    });
+
     describe('Logout endpoints', () => {
         it('should test the happy path', (done) => {
             context.client.get('/auth/logout')

@@ -3,6 +3,7 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 
+const accountExtractor = require('../middleware/accountExtractor');
 const cache = require('../utilities/cache');
 const constants = require('../helpers/constants');
 const crypto = require('../services/crypto');
@@ -163,6 +164,27 @@ router.get('/account', security(), (req, res) => {
                 res.status(500).json({ message: err.message });
             }
         });
+});
+
+//Update the account password
+router.put('/account/:accountId/password', security(), accountExtractor(), (req, res) => {
+    let newPassword = req.body.newPassword;
+    let currentPassword = req.body.currentPassword;
+    if (!(req.account && crypto.verifyPassword(currentPassword, req.account.salt, req.account.hash))) {
+        res.status(400).json({ message: 'Incorrect password' });
+    } else {
+        let creds = crypto.generateSaltAndHash(newPassword);
+        req.account.salt = creds.salt;
+        req.account.hash = creds.hash;
+        req.account.save((err, account) => {
+            if (err) {
+                logger.error('auth', 'Failed to update password', { error: err });
+                res.status(500).json({message: 'Failed to update password.'});
+            } else {
+                res.status(200).json({username: account.username, email: account.email, _id: account._id});
+            }
+        });
+    }
 });
 
 // Logout endpoint
