@@ -4,10 +4,19 @@
 			"accountCreate": "account-create",
 			"accountDelete": "account-delete",
 			"accountFind": "account-find",
+			"goalAdd": "goal-add",
+			"goalFind": "goal-find",
+			"goalFindAll": "goal-find-all",
+			"goalDelete": "goal-delete",
+			"subgoalAdd": "sub-goal-add",
+			"subgoalFind": "sub-goal-find",
+			"subgoalFindAll": "sub-goal-find-all",
+			"subgoalDelete": "sub-goal-delete",
 			"profileCreate": "profile-create",
 			"profileDelete": "profile-delete",
 			"profileUpdate": "profile-update",
-			"profileFind": "profile-find"
+			"profileFind": "profile-find",
+			"profileFindAll": "profile-find-all"
 		}
 	},
 	"blacklistPrefix": "option22-token-blacklist-"
