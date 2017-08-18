@@ -128,6 +128,27 @@ describe('Auth Tests', function () {
         });
     });
 
+    describe('Update email and username endpoint', () => {
+        it('should test happy path for updating username and password', (done) => {
+            let username = `joebob_${new Date().getTime()}`;
+            let email = `test2_${new Date().getTime()}@test.com`;
+            context.client.put('/auth/account/:accountId/update', {
+                username: username,
+                email: email
+            }, {
+                accountId: account._id
+            })
+                .then((res) => {
+                    expect(res.statusCode).to.eql(200);
+                    expect(res.body.token).to.not.be.null;
+                    accountSetup.token = res.body.token;
+                    expect(res.body.account.email).to.eql(email);
+                    expect(res.body.account.username).to.eql(username);
+                    done()
+                }).catch(done);
+        });
+    });
+
     describe('Update Password endpoint', () => {
         it('should test successfully updated password', (done) => {
             context.client.put('/auth/account/:accountId/password', {
@@ -138,8 +159,8 @@ describe('Auth Tests', function () {
             })
                 .then((res) => {
                     expect(res.statusCode).to.eql(200);
-                    expect(res.body.username).to.eql(account.username);
-                    expect(res.body.email).to.eql(account.email);
+                    expect(res.body.token).to.not.be.null;
+                    accountSetup.token = res.body.token;
                     done()
                 }).catch(done);
         });
