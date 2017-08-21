@@ -11,10 +11,10 @@ router.get('/', (req, res) => {
     let profileGoals;
     mongoHelpers.findProfile({accountId: req.account._id})
         .then((profile) => {
-            return mongoHelpers.findAllGoals({profileId: profile})
+            return mongoHelpers.findAllGoals({profileId: profile._id})
         })
         .then((goals) => {
-            profileGoals = goals;
+            profileGoals = JSON.parse(JSON.stringify(goals));
             let promises = goals.map((goal) => {
                 return mongoHelpers.findAllSubgoals({goalId: goal._id});
             });
@@ -22,7 +22,7 @@ router.get('/', (req, res) => {
         })
         .then((subgoals) => {
             profileGoals.forEach((goal, index) => {
-                goal.subgoals = subgoals[index];
+                goal['subgoals'] = subgoals[index];
             });
             res.status(200).json({total: profileGoals.length, data: profileGoals});
         })
@@ -54,6 +54,29 @@ router.post('/', (req, res) => {
         .catch((err) => {
             logger.error('goals', 'Error adding a goal', err);
             res.status(500).send('Internal server error adding goal');
+        });
+});
+
+// remove goal
+router.delete('/:goalId', (req, res) => {
+    return mongoHelpers.findGoal({_id: req.params.goalId})
+        .then((goal) => {
+            return mongoHelpers.findAllSubgoals({goalId: goal._id});
+        })
+        .then((subgoals) => {
+            let promises = subgoals.map((subgoal) => {
+                return mongoHelpers.removeSubgoal({_id: subgoal._id});
+            });
+            return Promise.all(promises);
+        })
+        .then(() => {
+            return mongoHelpers.removeGoal({_id: req.params.goalId})
+        })
+        .then(() => {
+            res.status(202).send('Deleted');
+        }).catch((err) => {
+            logger.error('goals', 'Error deleting goal', err);
+            res.status(500).json({message: 'Internal server error deleting goal'});
         });
 });
 

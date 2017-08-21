@@ -5,7 +5,7 @@ const constants = require('./constants');
 const Goal = require('../models/goal.mongoose');
 const logger = require('../utilities/logger');
 const Profile = require('../models/profile.mongoose');
-const Subgoal = require('../models/goal.mongoose');
+const Subgoal = require('../models/subgoal.mongoose');
 
 
 /**
@@ -157,7 +157,7 @@ const removeProfile = (params) => {
 const addGoal = (params) => {
     return new Promise(function (resolve, reject) {
         let goal = new Goal(params);
-        goal.add((err, result) => {
+        goal.save((err, result) => {
             if (err) {
                 reject({ step: constants.mongo.steps.goalAdd, message: 'Error adding goal', error: err });
             } else {
@@ -235,8 +235,8 @@ const removeGoal = (params) => {
  */
 const addSubgoal = (params) => {
     return new Promise(function (resolve, reject) {
-        let subgoal = new Goal(params);
-        subgoal.add((err, result) => {
+        let subgoal = new Subgoal(params);
+        subgoal.save((err, result) => {
             if (err) {
                 reject({ step: constants.mongo.steps.subgoalAdd, message: 'Error adding subgoal', error: err });
             } else {
