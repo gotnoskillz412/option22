@@ -145,23 +145,19 @@ router.put('/:goalId', (req, res) => {
             .then((subgoals) => {
                 subgoalsToRemove = subgoals.filter((s) => {
                     let found = updatedSubgoals.find((us) => {
-                        return s._id.toString() === us._id.toString();
+                        return us._id && s._id.toString() === us._id.toString();
                     });
                     return !found;
                 });
                 subgoalsToAdd = updatedSubgoals.filter((us) => {
-                    let found = subgoals.find((s) => {
-                        return s._id.toString() === us._id.toString();
-                    });
-                    return !found;
+                    return !us._id;
                 });
                 subgoalsToUpdate = updatedSubgoals.filter((us) => {
                     let found = subgoals.find((s) => {
-                        return s._id.toString() === us._id.toString();
+                        return us._id && s._id.toString() === us._id.toString();
                     });
                     return found;
                 });
-                console.log(subgoalsToAdd);
             })
             .then(() => {
                 let subgoalPromises = subgoalsToUpdate.map((updatedSubgoal) => {
@@ -198,6 +194,7 @@ router.put('/:goalId', (req, res) => {
             .then(() => {
                 return new Promise((resolve4, reject4) => {
                     subgoalsToAdd = subgoalsToAdd.map((sgta) => {
+                        sgta.goalId = updatedGoal._id;
                         return mongoHelpers.addSubgoal(sgta);
                     });
                     Promise.all(subgoalsToAdd)
