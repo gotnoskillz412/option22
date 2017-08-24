@@ -28,7 +28,7 @@ router.get('/', (req, res) => {
         })
         .catch((err) => {
             logger.error('goals', 'Error getting goals', err);
-            res.status(500).send('Internal server error retrieving goals');
+            res.status(500).json({ message: 'Internal server error retrieving goals' });
         });
 });
 
@@ -40,7 +40,7 @@ router.post('/', (req, res) => {
 
     return mongoHelpers.addGoal(req.body)
         .then((goal) => {
-            profileGoal = goal;
+            profileGoal = JSON.parse(JSON.stringify(goal));
             let promises = subgoals.map((subgoal) => {
                 subgoal.goalId = goal._id;
                 return mongoHelpers.addSubgoal(subgoal);
@@ -53,7 +53,7 @@ router.post('/', (req, res) => {
         })
         .catch((err) => {
             logger.error('goals', 'Error adding a goal', err);
-            res.status(500).send('Internal server error adding goal');
+            res.status(500).json({ message: 'Internal server error adding goal' });
         });
 });
 
@@ -115,6 +115,8 @@ router.put('/:goalId', (req, res) => {
     let updatedGoal = req.body;
     let updatedSubgoals = updatedGoal.subgoals && JSON.parse(JSON.stringify(updatedGoal.subgoals));
     let subgoalsToRemove;
+    let subgoalsToAdd;
+    let subgoalsToUpdate;
     delete updatedGoal.subgoals;
     let goalPromises = [];
     let savedGoal;
@@ -136,22 +138,35 @@ router.put('/:goalId', (req, res) => {
                         resolve();
                     }
                 });
-            });
+            }).catch(reject);
     }));
     goalPromises.push(new Promise((resolve, reject) => {
         mongoHelpers.findAllSubgoals({ goalId: updatedGoal._id })
             .then((subgoals) => {
                 subgoalsToRemove = subgoals.filter((s) => {
                     let found = updatedSubgoals.find((us) => {
-                        return s._id === us._id;
+                        return s._id.toString() === us._id.toString();
                     });
                     return !found;
                 });
+                subgoalsToAdd = updatedSubgoals.filter((us) => {
+                    let found = subgoals.find((s) => {
+                        return s._id.toString() === us._id.toString();
+                    });
+                    return !found;
+                });
+                subgoalsToUpdate = updatedSubgoals.filter((us) => {
+                    let found = subgoals.find((s) => {
+                        return s._id.toString() === us._id.toString();
+                    });
+                    return found;
+                });
+                console.log(subgoalsToAdd);
             })
             .then(() => {
-                let subgoalPromises = updatedSubgoals.map((updatedSubgoal) => {
+                let subgoalPromises = subgoalsToUpdate.map((updatedSubgoal) => {
                     return new Promise((resolve2, reject2) => {
-                        mongoHelpers.findSubgoal({_id: updatedSubgoal._id})
+                        mongoHelpers.findSubgoal({ _id: updatedSubgoal._id })
                             .then((sg) => {
                                 Object.keys(updatedGoal).forEach((key) => {
                                     if (sg[key] !== updatedSubgoal[key]) {
@@ -174,20 +189,34 @@ router.put('/:goalId', (req, res) => {
                 savedSubgoals = JSON.parse(JSON.stringify(subgoals));
                 return new Promise((resolve3, reject3) => {
                     subgoalsToRemove = subgoalsToRemove.map((sgtr) => {
-                        return mongoHelpers.removeSubgoal({_id: sgtr._id});
+                        return mongoHelpers.removeSubgoal({ _id: sgtr._id });
                     });
                     Promise.all(subgoalsToRemove)
                         .then(resolve3, reject3);
                 });
             })
-            .then(resolve, reject);
+            .then(() => {
+                return new Promise((resolve4, reject4) => {
+                    subgoalsToAdd = subgoalsToAdd.map((sgta) => {
+                        return mongoHelpers.addSubgoal(sgta);
+                    });
+                    Promise.all(subgoalsToAdd)
+                        .then(resolve4, reject4);
+                });
+            })
+            .then((newSubgoals) => {
+                savedSubgoals = savedSubgoals.concat(JSON.parse(JSON.stringify(newSubgoals)));
+            })
+            .then(resolve)
+            .catch(reject);
     }));
 
     Promise.all(goalPromises).then(() => {
         savedGoal.subgoals = savedSubgoals || [];
+        res.status(200).json(savedGoal);
     }).catch((err) => {
         logger.error('goals', 'Error updating goal and subgoals', err);
-        res.status(500).json({message: 'Internal server error updating goal and subgoals'});
+        res.status(500).json({ message: 'Internal server error updating goal and subgoals' });
     });
 });
 
