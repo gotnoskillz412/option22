@@ -161,16 +161,16 @@ AccountSetup.prototype.createAccount = function (options) {
 
 AccountSetup.prototype.removeAccount = function () {
     if (this.account) {
-        return mongoHelpers.findAccount({ username: this.account.username.toLowerCase() }).then((act) => {
+        return mongoHelpers.findAccount({ _id: this.account._id }).then((act) => {
             if (act) {
-                return mongoHelpers.removeAccount({ username: this.account.username.toLowerCase() });
+                return mongoHelpers.removeAccount({ _id: this.account._id });
             }
             return Promise.resolve();
         })
             .then(() => {
-                return mongoHelpers.findProfile({ username: this.account.username.toLowerCase() }).then((profile) => {
+                return mongoHelpers.findProfile({ _id: this.profile._id }).then((profile) => {
                     if (profile) {
-                        return mongoHelpers.removeProfile({ username: this.account.username.toLowerCase() });
+                        return mongoHelpers.removeProfile({ _id: this.profile._id });
                     }
                     return Promise.resolve();
                 });
