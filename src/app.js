@@ -43,7 +43,7 @@ app.use('/accounts/:accountId/goals', security(), accountExtractor(), routes.goa
 app.use('/accounts/:accountId/profiles', security(), accountExtractor(), routes.profile);
 
 mongoose.Promise = global.Promise;
-mongoose.connect(process.env.MONGO_URI);
+mongoose.connect(process.env.MONGODB_URI);
 
 
 /// catch 404 and forwarding to error handler
