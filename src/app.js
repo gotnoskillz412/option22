@@ -12,7 +12,7 @@ const logger = require('./utilities/logger');
 const routes = require('./routes/routes');
 const security = require('./middleware/security');
 
-const PORT = parseInt(process.env.API_PORT, 10) || 3000;
+const PORT = parseInt(process.env.PORT, 10) || 3000;
 
 const corsOptions = {
     origin: process.env.BASE_WEB || '*',
