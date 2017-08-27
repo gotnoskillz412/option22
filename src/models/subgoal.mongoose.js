@@ -8,7 +8,7 @@ const Schema = mongoose.Schema;
 const Subgoal = new Schema({
     goalId: Schema.Types.ObjectId,
     description: String,
-    complete: Boolean
+    completed: Boolean
 });
 
 exports = module.exports = mongoose.model('Subgoal', Subgoal);

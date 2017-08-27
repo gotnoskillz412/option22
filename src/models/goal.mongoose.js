@@ -9,7 +9,8 @@ const Goal = new Schema({
     profileId: Schema.Types.ObjectId,
     description: String,
     progress: Number,
-    completed: Boolean
+    startDate: String,
+    finishDate: String
 });
 
 exports = module.exports = mongoose.model('Goal', Goal);

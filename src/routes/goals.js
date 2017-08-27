@@ -164,7 +164,7 @@ router.put('/:goalId', (req, res) => {
                     return new Promise((resolve2, reject2) => {
                         mongoHelpers.findSubgoal({ _id: updatedSubgoal._id })
                             .then((sg) => {
-                                Object.keys(updatedGoal).forEach((key) => {
+                                Object.keys(updatedSubgoal).forEach((key) => {
                                     if (sg[key] !== updatedSubgoal[key]) {
                                         sg[key] = updatedSubgoal[key];
                                     }

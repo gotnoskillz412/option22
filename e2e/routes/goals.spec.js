@@ -49,8 +49,9 @@ describe('Goals Tests', function () {
                 config.urls.collection, {
                     description: goalDescription,
                     progress: 0,
+                    startDate: new Date().toISOString(),
                     profileId: profile._id,
-                    completed: false,
+                    finishDate: null,
                     subgoals: [{
                         description: subgoalDescription,
                         completed: false
@@ -80,7 +81,8 @@ describe('Goals Tests', function () {
                     description: goalDescription,
                     progress: 0,
                     profileId: profile._id,
-                    completed: false,
+                    startDate: new Date().toISOString(),
+                    finishDate: null,
                     subgoals: [{
                         description: subgoalDescription,
                         completed: false
@@ -159,12 +161,13 @@ describe('Goals Tests', function () {
 
         it('should test updating the goal succeeds', (done) => {
             let updatedGoal = JSON.parse(JSON.stringify(savedGoal));
-            updatedGoal.completed = true;
+            updatedGoal.finishDate = new Date().toISOString();
+            updatedGoal.progress = 100;
             context.client.put(config.urls.detail, updatedGoal, { accountId: account._id, goalId: savedGoal._id })
                 .then((res) => {
                     expect(res.statusCode).to.eql(200);
                     expect(res.body._id).to.eql(savedGoal._id);
-                    expect(res.body.completed).to.eql(true);
+                    expect(res.body.progress).to.eql(100);
                     expect(res.body.subgoals.length).to.eql(1);
                     expect(res.body.subgoals[0].description).to.eql(subgoalDescription);
                     savedGoal = JSON.parse(JSON.stringify(res.body));
