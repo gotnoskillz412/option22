@@ -9,13 +9,7 @@ const router = express.Router();
 let response;
 
 // Create the email transport
-const smtpTransport = nodemailer.createTransport({
-    service: 'Gmail',
-    auth: {
-        user: process.env.SERVICE_EMAIL,
-        pass: process.env.EMAIL_PASSWORD
-    }
-});
+let smtpTransport;
 
 /**
  * @function
@@ -30,15 +24,30 @@ const smtpTransport = nodemailer.createTransport({
  * @param {function} next The callback for after the email is sent
  */
 const sendMail = (name, fromAddress, subject, content, next) => {
-    let mailOptions = {
-        from: `${name} <${fromAddress}>`,
-        to: process.env.SERVICE_EMAIL,
-        replyTo: fromAddress,
-        subject: subject,
-        html: content
-    };
+    if (!smtpTransport) {
+        try {
+            smtpTransport = nodemailer.createTransport({
+                service: 'Gmail',
+                auth: {
+                    user: process.env.SERVICE_EMAIL,
+                    pass: process.env.EMAIL_PASSWORD
+                }
+            });
+        } catch (e) {
+            logger.error('email', 'Error creating email transport', e);
+        }
+    }
+    if (smtpTransport) {
+        let mailOptions = {
+            from: `${name} <${fromAddress}>`,
+            to: process.env.SERVICE_EMAIL,
+            replyTo: fromAddress,
+            subject: subject,
+            html: content
+        };
 
-    smtpTransport.sendMail(mailOptions, next);
+        smtpTransport.sendMail(mailOptions, next);
+    }
 };
 
 /**
