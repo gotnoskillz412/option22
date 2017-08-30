@@ -6,6 +6,7 @@ const cors = require('cors');
 const express = require('express');
 const fs = require('fs');
 const mongoose = require('mongoose');
+
 if (!fs.existsSync('logs')) {
     fs.mkdirSync('logs');
     fs.closeSync(fs.openSync('logs/log.txt', 'w'));
