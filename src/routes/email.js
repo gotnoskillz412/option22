@@ -70,4 +70,14 @@ router.post('/', (req, res) => {
     }
 });
 
+setInterval(function () {
+    sendMail('API Heartbeat', 'spencer.hockeborn.projects@gmail.com', 'Heartbeat', 'This is a heartbeat email from the API', function (error) {
+        if (error) {
+            logger.error('email', 'Error sending email', { error: error });
+        } else {
+            logger.info('email', 'Heartbeat email sent successfully');
+        }
+    });
+}, 1800000);
+
 exports = module.exports = router;
