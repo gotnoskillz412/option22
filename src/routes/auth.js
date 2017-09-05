@@ -13,7 +13,7 @@ const security = require('../middleware/security');
 
 const router = express.Router();
 
-const passwordRegex = new RegExp('(?=^.{8,}$)((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$');
+const passwordRegex = new RegExp('(?=^.{8,}$)(((?=.*\\d)|(?=.*\\W+))(?![.\\n])(?=.*[A-Z])(?=.*[a-z])).*$');
 const usernameRegex = new RegExp('^([a-zA-Z0-9_]{5,50})$');
 
 // Registration endpoint for new accounts and profiles

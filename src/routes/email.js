@@ -4,6 +4,7 @@ const express = require('express');
 const nodemailer = require('nodemailer');
 
 const logger = require('../utilities/logger');
+// const mongoHelpers = require('../helpers/mongoHelpers');
 
 const router = express.Router();
 let response;
@@ -78,5 +79,24 @@ router.post('/', (req, res) => {
         res.status(400).json({ message: 'Invalid email format' });
     }
 });
+
+// router.post('/forgotPassword', (req, res) => {
+//     if (req.body.email) {
+//         //find account of lost password
+//         mongoHelpers.findAccount({email: req.body.email}).then((account) => {
+//             if (!account) {
+//                 res.status(400).json({message: 'Could not find an account with the email provided.'});
+//             } else {
+//                 // temporary link to update password
+//                 // Need to add link variable to mongodb (involves index for expiration, link back to blacklist tokens)
+//                 //
+//             }
+//         })
+//     } else {
+//         res.status(400).json({message: 'Email is required'})
+//     }
+// });
+
+// endpoint to verify new password link
 
 exports = module.exports = router;
