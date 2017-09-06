@@ -101,7 +101,9 @@ router.post('/forgotPassword', (req, res) => {
                         } else {
                             let link = encodeURI(path.join(process.env.BASE_WEB, `/passwordreset/${tempId}?email=${req.body.email}`));
                             //send email to user
-                            let content = `<p>A password reset has been requested for this email. This link will be valid for 24 hours, or until another password reset request is requested. If you did not request a password reset, please ignore this email.</p><a href="${link}">Click here to update your password!</a>`;
+                            let content = '<p>A password reset has been requested for this email. This link will be valid for 24 hours, or until another password reset request is requested. If you did not request a password reset, please ignore this email.</p>' +
+                                '<p>Navigate to the address below to reset your email...</p>' +
+                                `<p>${link}</p>`;
                             sendMail('Spencer Hockeborn', process.env.SERVICE_EMAIL, req.body.email, 'Goal Tending Password Reset Request', content, (err) => {
                                 if (err) {
                                     logger.error('email', 'Error sending password reset email', { error: err });
