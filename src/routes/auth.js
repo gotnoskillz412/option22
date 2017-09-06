@@ -4,17 +4,42 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 
 const accountExtractor = require('../middleware/accountExtractor');
-const cache = require('../utilities/cache');
 const constants = require('../helpers/constants');
 const crypto = require('../services/crypto');
 const logger = require('../utilities/logger');
 const mongoHelpers = require('../helpers/mongoHelpers');
 const security = require('../middleware/security');
+const PasswordReset = require('../models/passwordReset.mongoose');
+const TokenBlacklist = require('../models/tokenBlacklist.mongoose');
 
 const router = express.Router();
 
 const passwordRegex = new RegExp('(?=^.{8,}$)(((?=.*\\d)|(?=.*\\W+))(?![.\\n])(?=.*[A-Z])(?=.*[a-z])).*$');
 const usernameRegex = new RegExp('^([a-zA-Z0-9_]{5,50})$');
+
+const finishLogin = function (act, password, req, res) {
+    let account = act;
+    if (!(act && crypto.verifyPassword(password, act.salt, act.hash))) {
+        res.status(401).json({ message: 'Incorrect username/email or password' });
+    } else {
+        let username = account.username;
+        mongoHelpers.findProfile({ accountId: account._id }).then((profile) => {
+            let token = jwt.sign({
+                exp: Math.floor(Date.now() / 1000) + 3600,
+                data: {
+                    username: username,
+                    email: account.email
+                }
+            }, process.env.MY_SECRET);
+            logger.verbose('auth', 'Login successful', { email: account.email });
+            res.status(201).json({
+                token: token,
+                profile: profile,
+                account: { email: account.email, username: account.username, _id: account._id }
+            });
+        });
+    }
+};
 
 // Registration endpoint for new accounts and profiles
 router.post('/register', function (req, res) {
@@ -103,27 +128,13 @@ router.post('/login', (req, res) => {
     // Check credentials and then provide token
     let username = req.body.username && req.body.username.toLowerCase();
     let password = req.body.password;
-    let account = null;
     mongoHelpers.findAccount({ username: username })
         .then((act) => {
-            if (!(act && crypto.verifyPassword(password, act.salt, act.hash))) {
-                res.status(401).json({ message: 'Incorrect username or password' });
+            if (act) {
+                finishLogin(act, password, req, res);
             } else {
-                account = act;
-                mongoHelpers.findProfile({ accountId: account._id }).then((profile) => {
-                    let token = jwt.sign({
-                        exp: Math.floor(Date.now() / 1000) + 3600,
-                        data: {
-                            username: username,
-                            email: account.email
-                        }
-                    }, process.env.MY_SECRET);
-                    logger.verbose('auth', 'Login successful', { email: account.email });
-                    res.status(201).json({
-                        token: token,
-                        profile: profile,
-                        account: { email: account.email, username: account.username, _id: account._id }
-                    });
+                mongoHelpers.findAccount({email: username}).then((act) => {
+                    finishLogin(act, password, req, res);
                 });
             }
         })
@@ -243,22 +254,65 @@ router.put('/account/:accountId/update', security(), accountExtractor(), (req, r
 router.get('/logout', security(), function (req, res) {
     let token = req.headers.authorization && req.headers.authorization.split(' ');
     token = token && token.length === 2 && token[0].toLowerCase() === 'bearer' ? token[1] : null;
-    cache.set(constants.blacklistPrefix + token, true, (err, response) => {
-        if (err) {
+    let blackListToken = new TokenBlacklist({token: token});
+    blackListToken.save((err) => {
+        if (!err){
+            if (req.query.redirect_uri) {
+                res.redirect(302, req.query.redirect_uri);
+            } else {
+                res.status(200).json({ ok: true });
+            }
+        } else {
             logger.error('auth', 'Failed to logout', { error: err });
             req.status(500).json({ message: 'Failed to log out' });
         }
-        if (response) {
-            setTimeout(() => {
-                cache.del(constants.blacklistPrefix + token);
-            }, 3600000);
-        }
-        if (req.query.redirect_uri) {
-            res.redirect(302, req.query.redirect_uri);
-        } else {
-            res.status(200).json({ ok: true });
-        }
     });
+});
+
+// endpoint to verify new password link and then actually update the password
+router.put('/passwordreset', (req, res) => {
+    if (req.body.email && req.body.password && req.body.identifier) {
+        let email = req.body.email;
+        let password = req.body.password;
+        let identifier = req.body.identifier;
+        let key;
+
+        PasswordReset.findOne({email, identifier}, (errFindPasswordReset, body) => {
+            if (errFindPasswordReset){
+                logger.error('auth', 'Error looking for password reset', errFindPasswordReset);
+            } else if (!body) {
+                res.status(400).json({message: 'This link is no longer valid for this account'})
+            } else {
+                key = body._id;
+                mongoHelpers.findAccount({email}).then((account) => {
+                    if (account) {
+                        let creds = crypto.generateSaltAndHash(password);
+                        account.salt = creds.salt;
+                        account.hash = creds.hash;
+                        account.save((errSaveAccount) => {
+                            if (errSaveAccount) {
+                                logger.error('auth', 'Error updating account with reset password', errSaveAccount);
+                                res.status(500).json({message: 'Error updating account with reset password'});
+                            } else {
+                                PasswordReset.remove({_id: key}, (errRemovePasswordReset) => {
+                                    if (errRemovePasswordReset) {
+                                        logger.error('auth', 'Error removing password reset key', errRemovePasswordReset);
+                                    }
+                                    res.status(200).json({ok: true});
+                                });
+                            }
+                        })
+                    } else {
+                        logger.error('auth', 'Could no longer find the account for this password reset request');
+                        res.status(500).json({message: 'Could no longer find the account for this password reset request'});
+                    }
+                });
+
+            }
+        })
+    } else {
+        res.status(400).json({message: 'Please provide email, identifier, and new password'});
+    }
 });
 
 exports = module.exports = router;

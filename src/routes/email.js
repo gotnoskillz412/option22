@@ -2,9 +2,12 @@
 
 const express = require('express');
 const nodemailer = require('nodemailer');
+const uuid = require('uuid/v1');
 
 const logger = require('../utilities/logger');
-// const mongoHelpers = require('../helpers/mongoHelpers');
+const mongoHelpers = require('../helpers/mongoHelpers');
+const PasswordReset = require('../models/passwordReset.mongoose');
+const path = require('path');
 
 const router = express.Router();
 let response;
@@ -24,7 +27,7 @@ let smtpTransport;
  * @param {string} content The content of the email
  * @param {function} next The callback for after the email is sent
  */
-const sendMail = (name, fromAddress, subject, content, next) => {
+const sendMail = (name, fromAddress, toAddress, subject, content, next) => {
     if (!smtpTransport) {
         try {
             smtpTransport = nodemailer.createTransport({
@@ -41,7 +44,7 @@ const sendMail = (name, fromAddress, subject, content, next) => {
     if (smtpTransport) {
         let mailOptions = {
             from: `${name} <${fromAddress}>`,
-            to: process.env.SERVICE_EMAIL,
+            to: toAddress,
             replyTo: fromAddress,
             subject: subject,
             html: content
@@ -74,29 +77,48 @@ router.post('/', (req, res) => {
     if (req.body.email && req.body.name && req.body.subject && req.body.message) {
         let content = `<p>${req.body.message}</p>`;
         response = res;
-        sendMail(req.body.name, req.body.email, req.body.subject, content, afterSend);
+        sendMail(req.body.name, req.body.email, process.env.SERVICE_EMAIL, req.body.subject, content, afterSend);
     } else {
         res.status(400).json({ message: 'Invalid email format' });
     }
 });
 
-// router.post('/forgotPassword', (req, res) => {
-//     if (req.body.email) {
-//         //find account of lost password
-//         mongoHelpers.findAccount({email: req.body.email}).then((account) => {
-//             if (!account) {
-//                 res.status(400).json({message: 'Could not find an account with the email provided.'});
-//             } else {
-//                 // temporary link to update password
-//                 // Need to add link variable to mongodb (involves index for expiration, link back to blacklist tokens)
-//                 //
-//             }
-//         })
-//     } else {
-//         res.status(400).json({message: 'Email is required'})
-//     }
-// });
-
-// endpoint to verify new password link
+router.post('/forgotPassword', (req, res) => {
+    if (req.body.email) {
+        //find account of lost password
+        mongoHelpers.findAccount({email: req.body.email}).then((account) => {
+            if (!account) {
+                res.status(400).json({message: 'Could not find an account with the email provided.'});
+            } else {
+                // remove old links
+                PasswordReset.remove({email: req.body.email}, () => {
+                    let tempId = uuid();
+                    let passwordReset = new PasswordReset({identifier: tempId, email: req.body.email});
+                    passwordReset.save((err) => {
+                        if (err) {
+                            logger.error('email', 'Could not create temporary reset link', err);
+                            res.status(500).json({message: 'Could not create temporary reset link'});
+                        } else {
+                            let link = encodeURI(path.join(process.env.BASE_WEB, `/passwordreset/${tempId}?email=${req.body.email}`));
+                            //send email to user
+                            let content = `<p>A password reset has been requested for this email. This link will be valid for 24 hours, or until another password reset request is requested. If you did not request a password reset, please ignore this email.</p><a href="${link}">Click here to update your password!</a>`;
+                            sendMail('Spencer Hockeborn', process.env.SERVICE_EMAIL, req.body.email, 'Goal Tending Password Reset Request', content, (err) => {
+                                if (err) {
+                                    logger.error('email', 'Error sending password reset email', { error: err });
+                                    res.status(500).json({ message: 'Unable to send password reset request at this time.' });
+                                } else {
+                                    logger.info('email', 'Password reset email sent successfully');
+                                    res.status(201).json({ message: 'Password reset email sent successfully' });
+                                }
+                            });
+                        }
+                    })
+                });
+            }
+        })
+    } else {
+        res.status(400).json({message: 'Email is required'})
+    }
+});
 
 exports = module.exports = router;

@@ -2,9 +2,8 @@
 
 const jwt = require('jsonwebtoken');
 
-const cache = require('../utilities/cache');
-const constants = require('../helpers/constants');
 const logger = require('../utilities/logger');
+const TokenBlacklist = require('../models/tokenBlacklist.mongoose');
 
 /**
  * @name security
@@ -21,12 +20,12 @@ const security = () => {
 		if (!token) {
 			res.status(401).json({message: 'Unauthorized: No token provided'});
 		} else {
-            cache.get(constants.blacklistPrefix + token, (err, response) => {
-            	if (response) {
+		    TokenBlacklist.findOne({token: token}, (err, blacklistedToken) => {
+                if (blacklistedToken) {
                     res.status(401).json({message: 'Old token provided'});
-				} else if (err) {
-            	    logger.error('security', 'Error retrieving blacklisted tokens', {error: err});
-            	    res.status(500).json({message: 'Error checking old token'});
+                } else if (err) {
+                    logger.error('security', 'Error retrieving blacklisted tokens', {error: err});
+                    res.status(500).json({message: 'Error checking old token'});
                 } else {
                     jwt.verify(token, process.env.MY_SECRET, (err, decodedToken) => {
                         if (err) {
@@ -36,8 +35,8 @@ const security = () => {
                             next();
                         }
                     });
-				}
-			});
+                }
+            });
 		}
 	}
 };
